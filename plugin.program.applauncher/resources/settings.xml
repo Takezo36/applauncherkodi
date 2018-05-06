@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="General">
+        <setting label="Minimize Kodi after starting an app. Kodi will NOT maximize after the app has closed" type="bool" id="minimize" default="false"/>
+        <setting label="Kill Kodi after starting an app and restart it after the app is closed" type="bool" id="killkodi" default="false"/>
+        <setting label="Don't show your OS provided app listing" type="bool" id="dontshowstart" default="false"/>
+        <setting label="Kill Kodi after a started app has finished. This can be used combined with the minimize option if you have a demon which restarts Kodi anyway." type="bool" id="killafterappclose" default="false"/>
+    </category>
+</settings>

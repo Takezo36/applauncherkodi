@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+	<defaultcontrol>40000</defaultcontrol>
+	<coordinates>
+		<left>0</left>
+		<top>80</top>
+	</coordinates>
+	<controls>
+		<control type="group" id="40000">
+			<width>1000</width>
+			<height>600</height>
+			<control type="label" id = "40001">
+				<width>1000</width>
+				<height>600</height>
+				<label>HEADER</label>
+				<align>center</align>
+				
+			</control>
+			<control type="button" id=2>
+				<left>180r</left>
+				<width>180</width>
+			</control>
+			<control type="button" id=3>
+				<left>180r</left>
+				<width>180</width>
+			</control>
+			<control type="button" id=4>
+				<left>180r</left>
+				<width>180</width>
+			</control>
+		</control>
+	</controls>
+</window>
