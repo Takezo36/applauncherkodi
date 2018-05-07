@@ -3,7 +3,6 @@
     <requires>
         <import addon="xbmc.python" version="2.24.0" />
         <import addon="script.module.simplejson" version="3.3.0"/>
-	<import addon="script.module.applistprovider" version="0.0.1"/>
     </requires>
     
     <extension point="xbmc.python.pluginsource" library="plugin.py">

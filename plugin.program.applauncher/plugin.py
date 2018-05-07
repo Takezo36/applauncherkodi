@@ -10,8 +10,8 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import simplejson as json
-import AppLister
-import Constants
+import resources.lib.AppLister as AppLister
+import resources.lib.Constants as Constants
 import subprocess
 from distutils.util import strtobool
 #import AddCustomDialog
@@ -258,23 +258,23 @@ def loadData():
 
 def removeFromCustoms(path):
   data = loadData()
-  print "path " + path
+#  print "path " + path
   if path[0] == "/":
     path = path[1:]
-  print "path " + path
+ # print "path " + path
   deleteName = path.split("/")[-1]
   entries = data[CUSTOM_ENTRIES]
-  print entries
-  print "deletename " + str(deleteName)
+  #print entries
+  #print "deletename " + str(deleteName)
   for key in path.split("/"):
     print "key " + key
     if key == deleteName:
-      print "removing"
+   #   print "removing"
       entries.pop(key, None)
     else:
       entries = entries[key]
-  print entries
-  print data
+  #print entries
+  #print data
   writeData(data)
 def addCustomFolder():
   pass
