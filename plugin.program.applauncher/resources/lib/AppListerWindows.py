@@ -32,7 +32,7 @@ def getAppsWithIcons(additionalDir=""):
   except ValueError:
     showFailedMsg()
     return {}
-  output = subprocess.check_output([APPREADER_SCRIPT, ADDON_USER_DATA_FOLDER])
+  output = subprocess.check_output(["powershell", APPREADER_SCRIPT, ADDON_USER_DATA_FOLDER])
   result = json.loads(output)
   return result
 def showFailedMsg():

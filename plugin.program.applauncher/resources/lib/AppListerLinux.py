@@ -15,23 +15,29 @@ ADDON_VERSION = ADDON.getAddonInfo('version')
 IGNORE_CATEGORIES = ["GNOME", "GTK", "Application", "Core"]
 MAX_FOLDER_DEPTH = 1
 def discoverIcon(dirName, icon):
-  allowedIconType = [".jpg", ".png"]
-  if os.path.isfile("/usr/share/pixmaps/"+icon+".png"):
-    return "/usr/share/pixmaps/"+icon+".png"
+  allowedIconTypes = [".jpg", ".png", ".xpm", ".ico", ".svg"]
+  for allowedIconType in allowedIconTypes:
+    if os.path.isfile("/usr/share/pixmaps/"+icon+allowedIconType):
+      return "/usr/share/pixmaps/"+icon+allowedIconType
   if os.path.isdir(dirName):
     themeList = os.listdir(dirName)
     #moving hicolor to front
     if "hicolor" in themeList:
       themeList.remove("hicolor")
       themeList.insert(0, "hicolor")
-    for theme in themeList:
-      if os.path.isdir(dirName+theme):
-        for iconfolder in sorted(os.listdir(dirName+theme), reverse=True):
-          if os.path.isfile(dirName+theme+os.sep+iconfolder+os.sep+"apps"+os.sep+icon+".png"):
-            return dirName+theme+os.sep+iconfolder+os.sep+"apps"+os.sep+icon+".png"
-          if os.path.isfile(dirName+theme+os.sep+iconfolder+os.sep+"actions"+os.sep+icon+".png"):
-            return dirName+theme+os.sep+iconfolder+os.sep+"actions"+os.sep+icon+".png"
+    for allowedIconType in allowedIconTypes:
+      for theme in themeList:
+        if os.path.isdir(dirName+theme):
+          for iconfolder in sorted(os.listdir(dirName+theme), reverse=True):
+            if os.path.isfile(dirName+theme+os.sep+iconfolder+os.sep+"apps"+os.sep+icon+allowedIconType):
+              return dirName+theme+os.sep+iconfolder+os.sep+"apps"+os.sep+icon+allowedIconType
+            if os.path.isfile(dirName+theme+os.sep+iconfolder+os.sep+"actions"+os.sep+icon+allowedIconType):
+              return dirName+theme+os.sep+iconfolder+os.sep+"actions"+os.sep+icon+allowedIconType
   return None
+
+def svg2png(svg):
+  return None#"rsvg-convert -w $width -h $height ${file} -o ${file_name}.png"
+
 #this is fucking slow find better way to look up the icons  
 #  if os.path.isfile(dirName) and dirName[-4:] in allowedIconType and icon in dirName:
    # return dirName
@@ -112,7 +118,10 @@ def getAppsWithIcons(additionalDir=""):
               #print line
               #print categories
           if Constants.ICON in entry:
-            entry[Constants.ICON]=getBestIcon(entry[Constants.ICON])
+            icon = getBestIcon(entry[Constants.ICON])
+            if icon[-4:] == ".svg":
+              icon = svg2png(icon)
+            entry[Constants.ICON] = icon
           if entry[Constants.SIDECALLS]:
             for sideCall in entry[Constants.SIDECALLS]:
               if Constants.ICON in sideCall:
