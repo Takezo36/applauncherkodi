@@ -14,12 +14,11 @@ import resources.lib.AppLister as AppLister
 import resources.lib.Constants as Constants
 import subprocess
 from distutils.util import strtobool
-#import AddCustomDialog
-#import LibAutoCompletion
-#import YouTubeAutoCompletion
-#import LibSearch
-#import YouTubeSearch
-#import FileSystemAutoCompletion
+try:
+   import StorageServer
+except:
+   import storageserverdummy as StorageServer
+
 
 ADDON = xbmcaddon.Addon()
 ADDON_VERSION = ADDON.getAddonInfo('version')
@@ -51,6 +50,7 @@ ALL_APPS_STRING = "All Apps"
 REMOVE_CUSTOM_ENTRY_STRING = "Remove from custom entries"
 MOVE_TO_FOLDER_STRING = "Move entry to folder"
 
+cache = StorageServer.StorageServer(ADDON_ID, 24) 
 
 def addSideCallEntries(contextMenu, sideCalls):
   for sideCall in sideCalls:
@@ -118,7 +118,7 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
   
   
 def addStartEntries(folderToShow, isRoot):
-  entries = AppLister.getAppsWithIcons()
+  entries = cache.cacheFunction(AppLister.getAppsWithIcons)
   entries = getFolder(entries, folderToShow)
   addEntries(entries, folderToShow, False, isRoot)
 
@@ -171,7 +171,7 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
   li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_EXEC+"&"+ACTION_EXEC+"="+entry[Constants.EXEC])
   return li
 def addStartEntryAsCustom(path):
-  entry = AppLister.getAppsWithIcons()
+  entry = cache.cacheFunction(AppLister.getAppsWithIcons)
   for key in path.split("/"):
     entry = entry[key]
   storeEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME])
@@ -212,7 +212,7 @@ def storeEntry(exe="/", icon="/", name="", path=""):
   writeData(data)
 
 def addCustomVariant(path):
-  entry = AppLister.getAppsWithIcons()
+  entry = cache.cacheFunction(AppLister.getAppsWithIcons)
   for key in path.split("/"):
     entry = entry[key]
   addCustomEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME], path)
