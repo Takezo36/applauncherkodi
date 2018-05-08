@@ -29,9 +29,9 @@ def getAppsWithIcons(additionalDir=""):
     if version < 3:
       showFailedMsg()
       return {}
-    except ValueError:
-      showFailedMsg()
-      return {}
+  except ValueError:
+    showFailedMsg()
+    return {}
   output = subprocess.check_output([APPREADER_SCRIPT, ADDON_USER_DATA_FOLDER])
   result = json.loads(output)
   return result
