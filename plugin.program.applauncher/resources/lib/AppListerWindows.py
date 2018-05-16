@@ -12,9 +12,9 @@ import os
 
 ADDON = xbmcaddon.Addon()
 ADDON_VERSION = ADDON.getAddonInfo('version')
-ADDON_ID       = ADDON.getAddonInfo('id')
+ADDON_ID = ADDON.getAddonInfo('id')
 ADDON_USER_DATA_FOLDER = xbmc.translatePath("special://profile/addon_data/"+ADDON_ID)
-APPREADER_SCRIPT = xbmc.translatePath("special://home")+ os.sep + "addons" + os.sep + ADDON_ID + os.sep + "lib" + os.sep + "appreader.ps1"
+APPREADER_SCRIPT = xbmc.translatePath("special://home")+ "addons" + os.sep + ADDON_ID + os.sep + "resources" +os.sep + "lib" + os.sep + "appreader.ps1"
 FAILED_LINE1 = "You need to have PowerShell installed at least version 3.0"
 FAILED_LINE2 = "Please download and install it. For more info go to"
 FAIL_URL = "https://docs.microsoft.com/de-de/powershell/scripting/setup/installing-windows-powershell?view=powershell-6" 
@@ -33,7 +33,8 @@ def getAppsWithIcons(additionalDir=""):
     showFailedMsg()
     return {}
   output = subprocess.check_output(["powershell", APPREADER_SCRIPT, ADDON_USER_DATA_FOLDER])
-  result = json.loads(output)
+  print output.decode("utf-8","ignore")
+  result = json.loads(output.decode("utf-8","ignore"))
   return result
 def showFailedMsg():
   subprocess.call("echo \\\"" + FAIL_URL + "\\\"|clip")

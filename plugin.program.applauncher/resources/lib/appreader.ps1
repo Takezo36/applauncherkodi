@@ -169,5 +169,5 @@ getStartMenuEntries
 if([System.Environment]::OSVersion.Version.Major -ge 10){
 	getStoreApps
 }
-$json = ConvertTo-Json -InputObject $appData
+$json = ConvertTo-Json -InputObject $appData -Compress
 echo $json

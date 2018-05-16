@@ -12,7 +12,9 @@ import xbmcaddon
 import simplejson as json
 import resources.lib.AppLister as AppLister
 import resources.lib.Constants as Constants
+import resources.lib.AppRunner as AppRunner
 import subprocess
+import urllib
 from distutils.util import strtobool
 try:
    import StorageServer
@@ -36,6 +38,7 @@ ACTION_REMOVE_FROM_CUSTOMS = "removefromcustoms"
 ACTION_ADD_CUSTOM_FOLDER = "addcustomfolder"
 ACTION_MOVE_TO_FOLDER = "movetofolder"
 ACTION_EXEC = "exec"
+FORCE_REFRESH = "forcerefresh"
 CUSTOM_ENTRIES = "custom"
 DIR = "dir"
 IS_CUSTOM = "iscustom"
@@ -49,8 +52,20 @@ ADD_START_ENTRY_TO_CUSTOMS_STRING = "Add to custom entries"
 ALL_APPS_STRING = "All Apps"
 REMOVE_CUSTOM_ENTRY_STRING = "Remove from custom entries"
 MOVE_TO_FOLDER_STRING = "Move entry to folder"
+FORCE_REFRESH_STRING = "Force refresh"
+def addAddCustomEntryButton(handle, path):
+  li = xbmcgui.ListItem(CREATE_CUSTOM_ENTRY_STRING)
+  li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_ENTRY+"&"+DIR+"="+urllib.quote(path))
+  xbmcplugin.addDirectoryItem(handle, li.getPath(), li)
+def addAddCustomFolderButton(handle, path):
+  li = xbmcgui.ListItem(CREATE_CUSTOM_FOLDER_STRING)
+  li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_FOLDER+"&"+DIR+"="+urllib.quote(path))
+  xbmcplugin.addDirectoryItem(handle, li.getPath(), li) 
 
-cache = StorageServer.StorageServer(ADDON_ID, 24) 
+def addForceRefreshButton(handle, path, isCustom):
+  li = xbmcgui.ListItem(FORCE_REFRESH_STRING)
+  li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom)))
+  xbmcplugin.addDirectoryItem(handle, li.getPath(), li, isFolder=True)
 
 def addSideCallEntries(contextMenu, sideCalls):
   for sideCall in sideCalls:
@@ -75,10 +90,7 @@ def addCustomVariantEntry(contextMenu, path):
 def createEntries(folderToShow = "", folderIsInCustoms = True):
   customeEntries = None
   startEntries = None
-  #sucks do proper url decoding
-  folderToShow = folderToShow.replace("%2f", "/")
-  folderToShow = folderToShow.replace("%2F", "/")
-  folderToShow = folderToShow.replace("%20", " ")
+  folderToShow = urllib.unquote(folderToShow)
   isRoot = False
   if folderToShow == "":
     isRoot = True
@@ -88,8 +100,9 @@ def createEntries(folderToShow = "", folderIsInCustoms = True):
     if not strtobool(ADDON.getSetting("dontshowstart")):
       addStartEntries(folderToShow, isRoot)
   if folderIsInCustoms or isRoot:
-    addAddCustomEntry(handle, folderToShow)
-    #addAddCustomFolder(handle, folderToShow)
+    addAddCustomEntryButton(handle, folderToShow)
+    #addAddCustomFolderButton(handle, folderToShow)
+  addForceRefreshButton(handle, folderToShow,folderIsInCustoms)
   xbmcplugin.endOfDirectory(handle, cacheToDisc=False)  
 
 def getFolder(entries, folderToShow):
@@ -112,24 +125,19 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
         folderLink = folderToShow + "/" + key
       else:
         folderLink = key
-      kodiAction = "plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+folderLink+"&"+IS_CUSTOM+"="+str(int(isCustom))
+      kodiAction = "plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(folderLink)+"&"+IS_CUSTOM+"="+str(int(isCustom))
       li = createFolder(key, kodiAction, folderLink, isCustom)
       xbmcplugin.addDirectoryItem(handle, li.getPath(), li, isFolder=True)
   
   
 def addStartEntries(folderToShow, isRoot):
   entries = cache.cacheFunction(AppLister.getAppsWithIcons)
+  #print "LOOOOOK"
+  #print entries
   entries = getFolder(entries, folderToShow)
   addEntries(entries, folderToShow, False, isRoot)
 
-def addAddCustomEntry(handle, path):
-  li = xbmcgui.ListItem(CREATE_CUSTOM_ENTRY_STRING)
-  li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_ENTRY+"&"+DIR+"="+path)
-  xbmcplugin.addDirectoryItem(handle, li.getPath(), li)
-def addAddCustomFolder(handle, path):
-  li = xbmcgui.ListItem(CREATE_CUSTOM_FOLDER_STRING)
-  li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_FOLDER+"&"+DIR+"="+path)
-  xbmcplugin.addDirectoryItem(handle, li.getPath(), li)
+
 
 def createFolder(name, target, path, isCustom):
   #print target
@@ -221,16 +229,7 @@ def executeApp(command):
   killKodi = strtobool(ADDON.getSetting("killkodi"))
   minimize = strtobool(ADDON.getSetting("minimize"))
   killAfterAppClose = strtobool(ADDON.getSetting("killafterappclose"))    
-  if killKodi:
-    kodiExe = xbmc.translatePath("special://xbmc") + "kodi"
-    subprocess.Popen((sys.executable + " " + APP_LAUNCHER + " " + command + " " + kodiExe).split(" "))
-    xbmc.executebuiltin("Quit")
-  else:
-    if minimize:
-      xbmc.executebuiltin("Minimize")
-    subprocess.call(command.strip().split(" "))
-    if killAfterAppClose:
-      xbmc.executebuiltin("Quit")
+  AppRunner.executeApp(command, killKodi, minimize, killAfterAppClose)
     
 
 def addSortingMethods():
@@ -293,6 +292,13 @@ def parseArgs():
   return params
 if (__name__ == "__main__"):
   params = parseArgs()
+  if FORCE_REFRESH in params:
+      print "FORCE REFRESH"
+      cache = StorageServer.StorageServer(ADDON_ID, 0)
+  else:
+      print "NO REFRESH"
+      cache = StorageServer.StorageServer(ADDON_ID, 24)
+  
   if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
   if ACTION in params:
