@@ -8,14 +8,25 @@ import xbmcaddon
 import os
 import Constants
 import subprocess
-
+import hashlib
 
 ADDON = xbmcaddon.Addon()
+ADDON_ID       = ADDON.getAddonInfo('id')
 ADDON_VERSION = ADDON.getAddonInfo('version')
+ADDON_USER_DATA_FOLDER = xbmc.translatePath("special://profile/addon_data/"+ADDON_ID)
 IGNORE_CATEGORIES = ["GNOME", "GTK", "Application", "Core"]
 MAX_FOLDER_DEPTH = 1
+try:
+  subprocess.call(["rsvg-convert","--help"])
+except:
+  if strtobool(ADDON.getSetting("showsvgmsg")):
+    ADDON.setSetting("showsvgmsg",False)
+    showSVGMissingDialog()
+
+def showSVGMissingDialog():
+  pass
 def discoverIcon(dirName, icon):
-  allowedIconTypes = [".jpg", ".png", ".xpm", ".ico", ".svg"]
+  allowedIconTypes = [".jpg", ".png", ".ico", ".svg"]
   for allowedIconType in allowedIconTypes:
     if os.path.isfile("/usr/share/pixmaps/"+icon+allowedIconType):
       return "/usr/share/pixmaps/"+icon+allowedIconType
@@ -25,18 +36,22 @@ def discoverIcon(dirName, icon):
     if "hicolor" in themeList:
       themeList.remove("hicolor")
       themeList.insert(0, "hicolor")
-    for allowedIconType in allowedIconTypes:
-      for theme in themeList:
-        if os.path.isdir(dirName+theme):
-          for iconfolder in sorted(os.listdir(dirName+theme), reverse=True):
-            if os.path.isfile(dirName+theme+os.sep+iconfolder+os.sep+"apps"+os.sep+icon+allowedIconType):
-              return dirName+theme+os.sep+iconfolder+os.sep+"apps"+os.sep+icon+allowedIconType
-            if os.path.isfile(dirName+theme+os.sep+iconfolder+os.sep+"actions"+os.sep+icon+allowedIconType):
-              return dirName+theme+os.sep+iconfolder+os.sep+"actions"+os.sep+icon+allowedIconType
+    for theme in themeList:
+      for allowedIconType in allowedIconTypes:
+        for subfolder in sorted(os.listdir(dirName+theme), reverse=True):
+          if os.path.isdir(dirName+theme+os.sep+subfolder):
+            for iconfolder in sorted(os.listdir(dirName+theme+os.sep+subfolder), reverse=True):
+              if os.path.isfile(dirName+theme+os.sep+subfolder+os.sep+iconfolder+os.sep+icon+allowedIconType):
+                return dirName+theme+os.sep+subfolder+os.sep+iconfolder+os.sep+icon+allowedIconType
   return None
 
 def svg2png(svg):
-  return None#"rsvg-convert -w $width -h $height ${file} -o ${file_name}.png"
+  # Assumes the default UTF-8
+  hash_object = hashlib.md5(svg.encode())
+  outname = ADDON_USER_DATA_FOLDER + "/" + hash_object.hexdigest() + ".png"
+  if not os.path.isfile(outname):
+    subprocess.call(["rsvg-convert","-w","128","-h","128","-o",outname,svg])
+  return outname
 
 #this is fucking slow find better way to look up the icons  
 #  if os.path.isfile(dirName) and dirName[-4:] in allowedIconType and icon in dirName:
@@ -119,6 +134,10 @@ def getAppsWithIcons(additionalDir=""):
               #print categories
           if Constants.ICON in entry:
             icon = getBestIcon(entry[Constants.ICON])
+            print entry[Constants.NAME]
+            print entry[Constants.ICON]
+            print "icon name"
+            print icon
             if icon and icon[-4:] == ".svg":
               icon = svg2png(icon)
             entry[Constants.ICON] = icon

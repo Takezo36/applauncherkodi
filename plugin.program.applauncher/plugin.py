@@ -131,7 +131,8 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
   
   
 def addStartEntries(folderToShow, isRoot):
-  entries = cache.cacheFunction(AppLister.getAppsWithIcons)
+  #entries = cache.cacheFunction(AppLister.getAppsWithIcons)
+  entries = AppLister.getAppsWithIcons()
   #print "LOOOOOK"
   #print entries
   entries = getFolder(entries, folderToShow)
@@ -292,13 +293,9 @@ def parseArgs():
   return params
 if (__name__ == "__main__"):
   params = parseArgs()
+  cache = StorageServer.StorageServer(ADDON_ID, 24)
   if FORCE_REFRESH in params:
-      print "FORCE REFRESH"
-      cache = StorageServer.StorageServer(ADDON_ID, 0)
-  else:
-      print "NO REFRESH"
-      cache = StorageServer.StorageServer(ADDON_ID, 24)
-  
+    cache.cacheClean(True)
   if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
   if ACTION in params:
