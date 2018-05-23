@@ -35,8 +35,7 @@ def getAppsWithIcons(additionalDir=""):
     showFailedMsg()
     return {}
   output = subprocess.check_output(["powershell", APPREADER_SCRIPT, ADDON_USER_DATA_FOLDER])
-  print output.decode("utf-8","ignore")
-  result = json.loads(output.decode("utf-8","ignore"))
+  result = json.loads(output.decode("ascii","ignore"))
   return result
 def showFailedMsg():
   subprocess.call("echo \\\"" + FAIL_URL + "\\\"|clip")

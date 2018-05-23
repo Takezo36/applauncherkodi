@@ -62,10 +62,9 @@ def addAddCustomFolderButton(handle, path):
   li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_FOLDER+"&"+DIR+"="+urllib.quote(path))
   xbmcplugin.addDirectoryItem(handle, li.getPath(), li) 
 
-def addForceRefreshButton(handle, path, isCustom):
-  li = xbmcgui.ListItem(FORCE_REFRESH_STRING)
-  li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom)))
-  xbmcplugin.addDirectoryItem(handle, li.getPath(), li, isFolder=True)
+def addForceRefreshButton(contextMenu, path, isCustom):
+  contextMenu.append((MOVE_TO_FOLDER_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom)))
+  return contextMenu
 
 def addSideCallEntries(contextMenu, sideCalls):
   for sideCall in sideCalls:
@@ -102,7 +101,6 @@ def createEntries(folderToShow = "", folderIsInCustoms = True):
   if folderIsInCustoms or isRoot:
     addAddCustomEntryButton(handle, folderToShow)
     #addAddCustomFolderButton(handle, folderToShow)
-  addForceRefreshButton(handle, folderToShow,folderIsInCustoms)
   xbmcplugin.endOfDirectory(handle, cacheToDisc=False)  
 
 def getFolder(entries, folderToShow):
@@ -158,6 +156,7 @@ def addBaseContextMenu(contextMenu, path, isCustom, isFolder):
     if not isFolder:
       addCustomVariantEntry(contextMenu, path)
       addAddStartToCustomEntries(contextMenu, path)
+  addForceRefreshButton(contextMenu, path, isCustom)
 
 def createAppEntry(entry, addToStartPath, isCustom = False):
   li = xbmcgui.ListItem(entry[Constants.NAME])
