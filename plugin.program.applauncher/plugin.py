@@ -63,7 +63,7 @@ def addAddCustomFolderButton(handle, path):
   xbmcplugin.addDirectoryItem(handle, li.getPath(), li) 
 
 def addForceRefreshButton(contextMenu, path, isCustom):
-  contextMenu.append((MOVE_TO_FOLDER_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom)))
+  contextMenu.append((FORCE_REFRESH_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))))
   return contextMenu
 
 def addSideCallEntries(contextMenu, sideCalls):
@@ -129,8 +129,8 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
   
   
 def addStartEntries(folderToShow, isRoot):
-  #entries = cache.cacheFunction(AppLister.getAppsWithIcons)
-  entries = AppLister.getAppsWithIcons()
+  entries = cache.cacheFunction(AppLister.getAppsWithIcons)
+  #entries = AppLister.getAppsWithIcons()
   #print "LOOOOOK"
   #print entries
   entries = getFolder(entries, folderToShow)
@@ -294,7 +294,7 @@ if (__name__ == "__main__"):
   params = parseArgs()
   cache = StorageServer.StorageServer(ADDON_ID, 24)
   if FORCE_REFRESH in params:
-    cache.cacheClean(True)
+    cache.delete("cache%")
   if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
   if ACTION in params:

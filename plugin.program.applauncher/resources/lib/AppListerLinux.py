@@ -8,7 +8,14 @@ import xbmcaddon
 import os
 import Constants
 import subprocess
+import xbmcgui
 import hashlib
+from distutils.util import strtobool
+
+FAILED_LINE1 = "Linux has a lot of icons as SVGs. Unfortunately Kodi doesn't support SVG."
+FAILED_LINE2 = "Hence you'll need a SVG to PNG converter to see more icons. The default is rsvg-convert which in Ubuntu is in the librsvg2-bin package."
+FAILED_LINE3 = "Either install this or install an alternative and configure the execution string in the settings. (this message will not appear again)"
+
 
 ADDON = xbmcaddon.Addon()
 ADDON_ID       = ADDON.getAddonInfo('id')
@@ -16,15 +23,10 @@ ADDON_VERSION = ADDON.getAddonInfo('version')
 ADDON_USER_DATA_FOLDER = xbmc.translatePath("special://profile/addon_data/"+ADDON_ID)
 IGNORE_CATEGORIES = ["GNOME", "GTK", "Application", "Core"]
 MAX_FOLDER_DEPTH = 1
-try:
-  subprocess.call(["rsvg-convert","--help"])
-except:
-  if strtobool(ADDON.getSetting("showsvgmsg")):
-    ADDON.setSetting("showsvgmsg",False)
-    showSVGMissingDialog()
 
 def showSVGMissingDialog():
-  pass
+  xbmcgui.Dialog().ok('Error', FAILED_LINE1,FAILED_LINE2,FAILED_LINE3)
+
 def discoverIcon(dirName, icon):
   allowedIconTypes = [".jpg", ".png", ".ico", ".svg"]
   for allowedIconType in allowedIconTypes:
@@ -50,7 +52,9 @@ def svg2png(svg):
   hash_object = hashlib.md5(svg.encode())
   outname = ADDON_USER_DATA_FOLDER + "/" + hash_object.hexdigest() + ".png"
   if not os.path.isfile(outname):
-    subprocess.call(["rsvg-convert","-w","128","-h","128","-o",outname,svg])
+    executable = ADDON.getSetting("svgpath").replace("%output",outname)
+    executable.replace("%input",svg)
+    subprocess.call(executable.split(" "))
   return outname
 
 #this is fucking slow find better way to look up the icons  
@@ -190,4 +194,9 @@ if (__name__ == "__main__"):
   xbmc.log("version %s started" % ADDON_VERSION)
   ADDON.openSettings()
   xbmc.log('finished')
-
+if strtobool(ADDON.getSetting("showsvgmsg")):
+  try:
+    subprocess.call([ADDON.getSetting("svgpath").split(" ")[0],"--help"])
+  except:
+    showSVGMissingDialog()
+  ADDON.setSetting("showsvgmsg","false")
