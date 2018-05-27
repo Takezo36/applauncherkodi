@@ -18,26 +18,36 @@ LINUX_DEMON_PATH = xbmc.translatePath("special://home")+ "addons" + os.sep + ADD
 def getAppsWithIcons(additionalDir=""):
   return MyAppLister.getAppsWithIcons()
 
-def runLinuxDemon():
+def runLinuxDemon(kodiExe, command):
   subprocess.Popen((sys.executable + " " + APP_LAUNCHER + " " + command + " " + kodiExe).split(" "))
 
+def runWindowsDemon(kodiExe, command):
+  print ["powershell", 'StartProcess \"' + command + '\" -Wait;StartProcess \"' + kodiExe + '\"']
+  subprocess.Popen(["powershell", 'StartProcess \"' + command + '\" -Wait;StartProcess \"' + kodiExe + '\"'])
 
 def executeApp(command, killKodi, minimize, killAfterAppClose):
+  if myOS == "Windows":
+    command = command.replace("/","\\")
   if killKodi:
     kodiExe = xbmc.translatePath("special://xbmc") + "kodi"
     if myOS == "Linux":
-      runLinuxDemon(kodiExe)
+      runLinuxDemon(kodiExe, command)
     elif myOS == "Windows":
-      runWindowsDemon(kodiExe)
+      runWindowsDemon(kodiExe, command)
 #elif myOS == "Darwin":
 #  import AppListerOSX as MyAppLister
     else:
       runLinuxDemon()
     xbmc.executebuiltin("Quit")
   else:
+    print command
     if minimize:
       xbmc.executebuiltin("Minimize")
-    subprocess.call(command.strip().split(" "))
+    if command[:15] == "explorer shell:":
+      print "store app"
+      subprocess.call(command)
+    else:
+      subprocess.call(command.strip().split(" "))
     if killAfterAppClose:
       xbmc.executebuiltin("Quit")
 

@@ -112,9 +112,10 @@ def getFolder(entries, folderToShow):
 
 def addEntries(entries, folderToShow, isCustom, isRoot):
   for key in entries.keys():#sorted(entries, key=lambda k: k[Constants.NAME]):
-    if key == Constants.TYPE:
+    if key == Constants.TYPE or key == Constants.NAME:
       continue
     entry = entries[key]
+    print json.dumps(entries)
     if entry[Constants.TYPE] == Constants.TYPE_APP:
       li = createAppEntry(entry, folderToShow+"/"+key, isCustom)
       xbmcplugin.addDirectoryItem(handle, li.getPath(), li)
@@ -127,9 +128,19 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
       li = createFolder(key, kodiAction, folderLink, isCustom)
       xbmcplugin.addDirectoryItem(handle, li.getPath(), li, isFolder=True)
   
+
+def getAppList():
+  apps = cache.get("apps")
+  print "APPS LOOK: " + apps
+  if not apps:
+    apps = AppLister.getAppsWithIcons()
+    cache.set("apps", json.dumps(apps))
+  else:
+    apps = json.loads(apps)
+  return apps
   
 def addStartEntries(folderToShow, isRoot):
-  entries = cache.cacheFunction(AppLister.getAppsWithIcons)
+  entries = getAppList()
   #entries = AppLister.getAppsWithIcons()
   #print "LOOOOOK"
   #print entries
@@ -179,7 +190,7 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
   li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_EXEC+"&"+ACTION_EXEC+"="+entry[Constants.EXEC])
   return li
 def addStartEntryAsCustom(path):
-  entry = cache.cacheFunction(AppLister.getAppsWithIcons)
+  entry = getAppList()
   for key in path.split("/"):
     entry = entry[key]
   storeEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME])
@@ -220,7 +231,7 @@ def storeEntry(exe="/", icon="/", name="", path=""):
   writeData(data)
 
 def addCustomVariant(path):
-  entry = cache.cacheFunction(AppLister.getAppsWithIcons)
+  entry = getAppList()
   for key in path.split("/"):
     entry = entry[key]
   addCustomEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME], path)
@@ -294,7 +305,8 @@ if (__name__ == "__main__"):
   params = parseArgs()
   cache = StorageServer.StorageServer(ADDON_ID, 24)
   if FORCE_REFRESH in params:
-    cache.delete("cache%")
+    print "force refresh"
+    cache.delete("apps")
   if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
   if ACTION in params:
