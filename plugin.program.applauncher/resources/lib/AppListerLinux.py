@@ -138,10 +138,6 @@ def getAppsWithIcons(additionalDir=""):
               #print categories
           if Constants.ICON in entry:
             icon = getBestIcon(entry[Constants.ICON])
-            print entry[Constants.NAME]
-            print entry[Constants.ICON]
-            print "icon name"
-            print icon
             if icon and icon[-4:] == ".svg":
               icon = svg2png(icon)
             entry[Constants.ICON] = icon

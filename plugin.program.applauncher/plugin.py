@@ -44,12 +44,11 @@ DIR = "dir"
 IS_CUSTOM = "iscustom"
 handle = -1
 PLUGIN_ACTION = "Container.Update(plugin://plugin.program.applauncher?"
-
+DIR_SEP = ")(/&%$"
 CREATE_CUSTOM_ENTRY_STRING = "Create custom entry"
 CREATE_CUSTOM_FOLDER_STRING = "Create custom folder"
 CREATE_CUSTOM_VARIANT_STRING = "Create custom variant"
 ADD_START_ENTRY_TO_CUSTOMS_STRING = "Add to custom entries"
-ALL_APPS_STRING = "All Apps"
 REMOVE_CUSTOM_ENTRY_STRING = "Remove from custom entries"
 MOVE_TO_FOLDER_STRING = "Move entry to folder"
 FORCE_REFRESH_STRING = "Force refresh"
@@ -63,7 +62,8 @@ def addAddCustomFolderButton(handle, path):
   xbmcplugin.addDirectoryItem(handle, li.getPath(), li) 
 
 def addForceRefreshButton(contextMenu, path, isCustom):
-  contextMenu.append((FORCE_REFRESH_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))))
+  print PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"
+  contextMenu.append((FORCE_REFRESH_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"))
   return contextMenu
 
 def addSideCallEntries(contextMenu, sideCalls):
@@ -106,7 +106,7 @@ def createEntries(folderToShow = "", folderIsInCustoms = True):
 def getFolder(entries, folderToShow):
   if folderToShow == "":
     return entries
-  for folder in folderToShow.split("/"):
+  for folder in folderToShow.split(DIR_SEP):
       entries = entries[folder]
   return entries
 
@@ -115,13 +115,12 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
     if key == Constants.TYPE or key == Constants.NAME:
       continue
     entry = entries[key]
-    print json.dumps(entries)
     if entry[Constants.TYPE] == Constants.TYPE_APP:
-      li = createAppEntry(entry, folderToShow+"/"+key, isCustom)
+      li = createAppEntry(entry, folderToShow+DIR_SEP+key, isCustom)
       xbmcplugin.addDirectoryItem(handle, li.getPath(), li)
     elif entry[Constants.TYPE] == Constants.TYPE_FOLDER:
       if not isRoot:
-        folderLink = folderToShow + "/" + key
+        folderLink = folderToShow + DIR_SEP + key
       else:
         folderLink = key
       kodiAction = "plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(folderLink)+"&"+IS_CUSTOM+"="+str(int(isCustom))
@@ -131,10 +130,12 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
 
 def getAppList():
   apps = cache.get("apps")
-  print "APPS LOOK: " + apps
+  #print "APPS LOOK: " + apps
   if not apps:
     apps = AppLister.getAppsWithIcons()
     cache.set("apps", json.dumps(apps))
+    #apps2 = cache.get("apps")
+    #print "APPS LOOK: " + apps2
   else:
     apps = json.loads(apps)
   return apps
@@ -167,7 +168,15 @@ def addBaseContextMenu(contextMenu, path, isCustom, isFolder):
     if not isFolder:
       addCustomVariantEntry(contextMenu, path)
       addAddStartToCustomEntries(contextMenu, path)
-  addForceRefreshButton(contextMenu, path, isCustom)
+  i = path.rfind(DIR_SEP)
+  
+  if i != 0:
+    refreshPath = path[:i]
+  else:
+    refreshPath = ""
+  if refreshPath.find(DIR_SEP) == -1:
+    refreshPath = ""
+  addForceRefreshButton(contextMenu, refreshPath, isCustom)
 
 def createAppEntry(entry, addToStartPath, isCustom = False):
   li = xbmcgui.ListItem(entry[Constants.NAME])
@@ -191,7 +200,7 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
   return li
 def addStartEntryAsCustom(path):
   entry = getAppList()
-  for key in path.split("/"):
+  for key in path.split(DIR_SEP):
     entry = entry[key]
   storeEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME])
 
@@ -219,7 +228,7 @@ def storeEntry(exe="/", icon="/", name="", path=""):
   data = loadData()
   storepoint = data[CUSTOM_ENTRIES]
   if path != "":
-    for key in path.split("/"):
+    for key in path.split(DIR_SEP):
       if key in storepoint.keys() and storepoint[key][Constants.TYPE] == Constants.TYPE_FOLDER:
         storepoint = storepoint[key]
       else:
@@ -232,7 +241,7 @@ def storeEntry(exe="/", icon="/", name="", path=""):
 
 def addCustomVariant(path):
   entry = getAppList()
-  for key in path.split("/"):
+  for key in path.split(DIR_SEP):
     entry = entry[key]
   addCustomEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME], path)
 
@@ -269,14 +278,14 @@ def loadData():
 def removeFromCustoms(path):
   data = loadData()
 #  print "path " + path
-  if path[0] == "/":
+  if path[0] == DIR_SEP:
     path = path[1:]
  # print "path " + path
-  deleteName = path.split("/")[-1]
+  deleteName = path.split(DIR_SEP)[-1]
   entries = data[CUSTOM_ENTRIES]
   #print entries
   #print "deletename " + str(deleteName)
-  for key in path.split("/"):
+  for key in path.split(DIR_SEP):
     print "key " + key
     if key == deleteName:
    #   print "removing"
