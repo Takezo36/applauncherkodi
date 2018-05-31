@@ -62,7 +62,7 @@ def addAddCustomFolderButton(handle, path):
   xbmcplugin.addDirectoryItem(handle, li.getPath(), li) 
 
 def addForceRefreshButton(contextMenu, path, isCustom):
-  print PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"
+  #print PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"
   contextMenu.append((FORCE_REFRESH_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"))
   return contextMenu
 
@@ -130,12 +130,12 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
 
 def getAppList():
   apps = cache.get("apps")
-  #print "APPS LOOK: " + apps
+  ##print "APPS LOOK: " + apps
   if not apps:
     apps = AppLister.getAppsWithIcons()
     cache.set("apps", json.dumps(apps))
     #apps2 = cache.get("apps")
-    #print "APPS LOOK: " + apps2
+    ##print "APPS LOOK: " + apps2
   else:
     apps = json.loads(apps)
   return apps
@@ -143,15 +143,15 @@ def getAppList():
 def addStartEntries(folderToShow, isRoot):
   entries = getAppList()
   #entries = AppLister.getAppsWithIcons()
-  #print "LOOOOOK"
-  #print entries
+  ##print "LOOOOOK"
+  ##print entries
   entries = getFolder(entries, folderToShow)
   addEntries(entries, folderToShow, False, isRoot)
 
 
 
 def createFolder(name, target, path, isCustom):
-  #print target
+  ##print target
   li = xbmcgui.ListItem(name)
   li.setPath(path=target)
   #li.setIsFolder(True)
@@ -183,6 +183,7 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
   if "icon" in entry:
     icon = entry[Constants.ICON]
     if icon:
+      #print "iconpath: " + icon
       li.setArt({'icon' : icon,
                  'thumb':icon,
                  'poster':icon,
@@ -277,23 +278,23 @@ def loadData():
 
 def removeFromCustoms(path):
   data = loadData()
-#  print "path " + path
+#  #print "path " + path
   if path[0] == DIR_SEP:
     path = path[1:]
- # print "path " + path
+ # #print "path " + path
   deleteName = path.split(DIR_SEP)[-1]
   entries = data[CUSTOM_ENTRIES]
-  #print entries
-  #print "deletename " + str(deleteName)
+  ##print entries
+  ##print "deletename " + str(deleteName)
   for key in path.split(DIR_SEP):
-    print "key " + key
+    #print "key " + key
     if key == deleteName:
-   #   print "removing"
+   #   #print "removing"
       entries.pop(key, None)
     else:
       entries = entries[key]
-  #print entries
-  #print data
+  ##print entries
+  ##print data
   writeData(data)
 def addCustomFolder():
   pass
@@ -312,9 +313,11 @@ def parseArgs():
   return params
 if (__name__ == "__main__"):
   params = parseArgs()
+  addSortingMethods()
+  xbmc.executebuiltin("Container.SetViewMode(icons)")
   cache = StorageServer.StorageServer(ADDON_ID, 24)
   if FORCE_REFRESH in params:
-    print "force refresh"
+    ##print "force refresh"
     cache.delete("apps")
   if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
@@ -332,7 +335,7 @@ if (__name__ == "__main__"):
       removeFromCustoms(params[DIR])
     elif action == ACTION_SHOW_DIR:
       createEntries(params[DIR], strtobool(params[IS_CUSTOM]))
-      addSortingMethods()
+     # addSortingMethods()
     elif action == ACTION_ADD_CUSTOM_FOLDER:
       addCustomFolder()
     elif action == ACTION_MOVE_TO_FOLDER:
@@ -340,6 +343,6 @@ if (__name__ == "__main__"):
       
   else:
     createEntries()
-    addSortingMethods()
+    
     xbmc.log('finished')
 
