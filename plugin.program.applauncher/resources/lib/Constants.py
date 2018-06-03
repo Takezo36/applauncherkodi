@@ -6,6 +6,7 @@
 EXEC = "exec"
 NAME = "name"
 ICON = "icon"
+BACKGROUND = "background"
 SIDECALLS = "sidecalls"
 TYPE = "type"
 TYPE_APP = "app"

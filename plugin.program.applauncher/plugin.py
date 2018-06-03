@@ -36,10 +36,13 @@ ACTION_ADD_START_TO_CUSTOM = "addtostart"
 ACTION_REMOVE_FROM_START = "removetostart"
 ACTION_REMOVE_FROM_CUSTOMS = "removefromcustoms"
 ACTION_ADD_CUSTOM_FOLDER = "addcustomfolder"
+ACTION_SET_CUSTOM_ICON = "setcustomicon"
+ACTION_SET_CUSTOM_BACKDROP = "setcustombackdrop"
 ACTION_MOVE_TO_FOLDER = "movetofolder"
 ACTION_EXEC = "exec"
 FORCE_REFRESH = "forcerefresh"
 CUSTOM_ENTRIES = "custom"
+CUSTOM_ARTS = "arts"
 DIR = "dir"
 IS_CUSTOM = "iscustom"
 handle = -1
@@ -52,6 +55,12 @@ ADD_START_ENTRY_TO_CUSTOMS_STRING = "Add to custom entries"
 REMOVE_CUSTOM_ENTRY_STRING = "Remove from custom entries"
 MOVE_TO_FOLDER_STRING = "Move entry to folder"
 FORCE_REFRESH_STRING = "Force refresh"
+SET_CUSTOM_ICON_STRING = "Set custom icon"
+SET_CUSTOM_BACKGROUND_STRING = "Set custom background"
+ICON_TITLE_STRING = "Icon"
+BACKGROUND_TITLE_STRING = "Background"
+CHOSE_TITLE_STRING = "Select "
+
 def addAddCustomEntryButton(handle, path):
   li = xbmcgui.ListItem(CREATE_CUSTOM_ENTRY_STRING)
   li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_ENTRY+"&"+DIR+"="+urllib.quote(path))
@@ -84,7 +93,12 @@ def addAddStartToCustomEntries(contextMenu, path):
 def addCustomVariantEntry(contextMenu, path):
   contextMenu.append((CREATE_CUSTOM_VARIANT_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_ADD_CUSTOM_VARIANT+"&"+DIR+"="+path+")"))
   return contextMenu
-
+def addSetCustomIconEntry(contextMenu, path):
+  contextMenu.appen((SET_CUSTOM_ICON_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_ICON+"&"+DIR+"="+path+")"))
+  return contextMenu
+def addSetCustomBackgroundEntry(contextMenu, path):
+  contextMenu.appen((SET_CUSTOM_BACKGROUND_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_BACKGROUND+"&"+DIR+"="+path+")"))
+  return contextMenu
 
 def createEntries(folderToShow = "", folderIsInCustoms = True):
   customeEntries = None
@@ -168,8 +182,10 @@ def addBaseContextMenu(contextMenu, path, isCustom, isFolder):
     if not isFolder:
       addCustomVariantEntry(contextMenu, path)
       addAddStartToCustomEntries(contextMenu, path)
+      addSetCustomIconEntry(contextMenu, path)
+      addSetCustomBackgroundEntry(contextMenu, path)
+
   i = path.rfind(DIR_SEP)
-  
   if i != 0:
     refreshPath = path[:i]
   else:
@@ -180,18 +196,34 @@ def addBaseContextMenu(contextMenu, path, isCustom, isFolder):
 
 def createAppEntry(entry, addToStartPath, isCustom = False):
   li = xbmcgui.ListItem(entry[Constants.NAME])
-  if "icon" in entry:
+  arts = loadData()[CUSTOM_ARTS]
+  try:
+    for key in arts.split(DIR_SEP):
+      arts = arts[key]
+  except:
+    arts = None
+
+  if arts and Constants.ICON in arts.keys():
+    icon = arts[Constants.ICON]
+  elif Constants.ICON in entry:
     icon = entry[Constants.ICON]
-    if icon:
-      #print "iconpath: " + icon
-      li.setArt({'icon' : icon,
-                 'thumb':icon,
-                 'poster':icon,
-                 'banner':icon,
-                 'fanart':icon,
-                 'clearart':icon,
-                 'clearlogo':icon,
-                 'landscape':icon})
+  else:
+    icon = ""
+
+  if arts and Constants.BACKGROUND in arts.keys():
+    background = arts[Constants.BACKGROUND]
+  elif Constants.BACKGROUND in entry:
+    background = entry[Constants.BACKGROUND]
+  else:
+    background = icon
+  li.setArt({'icon' : icon,
+             'thumb':icon,
+             'poster':icon,
+             'banner':icon,
+             'fanart':background,
+             'clearart':icon,
+             'clearlogo':icon,
+             'landscape':icon})
   contextMenu = []
   if Constants.SIDECALLS in entry.keys():
     addSideCallEntries(contextMenu, entry[Constants.SIDECALLS])
@@ -205,7 +237,7 @@ def addStartEntryAsCustom(path):
     entry = entry[key]
   storeEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME])
 
-def addCustomEntry(exe="/", icon="/", name="", path=""):
+def addCustomEntry(exe="/", icon="/", background="/", name="", path=""):
   dialog = xbmcgui.Dialog()
   fileName = dialog.browseSingle(1, 'Select Execution File', 'files', '', False, False, exe)
   if fileName == "":
@@ -214,16 +246,51 @@ def addCustomEntry(exe="/", icon="/", name="", path=""):
   icon = dialog.browseSingle(1, 'Select Icon', 'files', '', False, False, icon)
   if icon == "":
     return
+  background = dialog.browseSingle(1, 'Select Background', 'files', '', False, False, icon)
+  if background == "":
+    return
   name = dialog.input("Set name", name)
   if name == "":
     return
-  storeEntry(fileName + " " + params, icon, name)
+  storeEntry(fileName + " " + params, icon, background, name)
 
-def storeEntry(exe="/", icon="/", name="", path=""):
+def setCustomArtDialog(path, isBackground):
+  dialog = xbmcgui.Dialog()
+  entry = getApplist()
+  for key in path.split(DIR_SEP):
+    entry = entry[key]
+  default = "/"
+  if isBackground:
+    entryKey = Constants.BACKGROUND
+    title = CHOSE_TITLE_STRING + BACKGROUND_TITLE_STRING
+    if Constants.BACKGROUND in entry.keys():
+      default = entry[Constants.BACKGROUND]
+  else:
+    entryKey = Constants.ICON
+    title = CHOSE_TITLE_STRING + ICON_TITLE_STRING
+    if Constants.ICON in entry.keys():
+      default = entry[Constants.ICON]
+
+  art = dialog.browseSingle(1, title, 'files', '', False, False, default)
+  if art == "":
+    return
+  data = loadData()
+  storepoint = data[CUSTOM_ARTS]
+  for key in path.split(DIR_SEP):
+    if key in storepoint.keys():
+      storepoint = storepoint[key]
+    else:
+      storepoint[key] = {}
+      storepoint = storepoint[key]
+  storepoint[entryKey] = art
+  writeData(data)
+
+def storeEntry(exe="/", icon="/", background="/", name="", path=""):
   entry = {}
   entry[Constants.NAME] = name
   entry[Constants.EXEC] = exe
   entry[Constants.ICON] = icon
+  entry[Constants.BACKGROUND] = background
   entry[Constants.TYPE] = Constants.TYPE_APP
 #  entry[REMOVE_START] = path+name
   data = loadData()
@@ -244,7 +311,7 @@ def addCustomVariant(path):
   entry = getAppList()
   for key in path.split(DIR_SEP):
     entry = entry[key]
-  addCustomEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME], path)
+  addCustomEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.BACKGROUND], entry[Constants.NAME], path)
 
 def executeApp(command):
   killKodi = strtobool(ADDON.getSetting("killkodi"))
@@ -274,6 +341,8 @@ def loadData():
     data = {}
   if CUSTOM_ENTRIES not in data:
     data[CUSTOM_ENTRIES] = {}
+  if CUSTOM_ARTS not in data:
+    data[CUSTOM_ARTS] = {}
   return data
 
 def removeFromCustoms(path):
@@ -331,6 +400,10 @@ if (__name__ == "__main__"):
       addCustomEntry(path = params[DIR])
     elif action == ACTION_ADD_CUSTOM_VARIANT:
       addCustomVariant(params[DIR])
+    elif action == ACTION_SET_CUSTOM_ICON:
+     setCustomArtDialog(params[DIR], False)
+    elif action == ACTION_SET_CUSTOM_BACKGROUND:
+     setCustomArtDialog(params[DIR], True)
     elif action == ACTION_REMOVE_FROM_CUSTOMS:
       removeFromCustoms(params[DIR])
     elif action == ACTION_SHOW_DIR:
