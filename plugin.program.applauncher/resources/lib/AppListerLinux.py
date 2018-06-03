@@ -54,7 +54,10 @@ def svg2png(svg):
   if not os.path.isfile(outname):
     executable = ADDON.getSetting("svgpath").replace("%output",outname)
     executable.replace("%input",svg)
-    subprocess.call(executable.split(" "))
+    try:
+      subprocess.call(executable.split(" "))
+    except:
+      return None
   return outname
 
 #this is fucking slow find better way to look up the icons  

@@ -37,7 +37,7 @@ ACTION_REMOVE_FROM_START = "removetostart"
 ACTION_REMOVE_FROM_CUSTOMS = "removefromcustoms"
 ACTION_ADD_CUSTOM_FOLDER = "addcustomfolder"
 ACTION_SET_CUSTOM_ICON = "setcustomicon"
-ACTION_SET_CUSTOM_BACKDROP = "setcustombackdrop"
+ACTION_SET_CUSTOM_BACKGROUND = "setcustombackground"
 ACTION_MOVE_TO_FOLDER = "movetofolder"
 ACTION_EXEC = "exec"
 FORCE_REFRESH = "forcerefresh"
@@ -47,7 +47,7 @@ DIR = "dir"
 IS_CUSTOM = "iscustom"
 handle = -1
 PLUGIN_ACTION = "Container.Update(plugin://plugin.program.applauncher?"
-DIR_SEP = ")(/&%$"
+DIR_SEP = "$%$"
 CREATE_CUSTOM_ENTRY_STRING = "Create custom entry"
 CREATE_CUSTOM_FOLDER_STRING = "Create custom folder"
 CREATE_CUSTOM_VARIANT_STRING = "Create custom variant"
@@ -94,10 +94,10 @@ def addCustomVariantEntry(contextMenu, path):
   contextMenu.append((CREATE_CUSTOM_VARIANT_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_ADD_CUSTOM_VARIANT+"&"+DIR+"="+path+")"))
   return contextMenu
 def addSetCustomIconEntry(contextMenu, path):
-  contextMenu.appen((SET_CUSTOM_ICON_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_ICON+"&"+DIR+"="+path+")"))
+  contextMenu.append((SET_CUSTOM_ICON_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_ICON+"&"+DIR+"="+path+")"))
   return contextMenu
 def addSetCustomBackgroundEntry(contextMenu, path):
-  contextMenu.appen((SET_CUSTOM_BACKGROUND_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_BACKGROUND+"&"+DIR+"="+path+")"))
+  contextMenu.append((SET_CUSTOM_BACKGROUND_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_BACKGROUND+"&"+DIR+"="+path+")"))
   return contextMenu
 
 def createEntries(folderToShow = "", folderIsInCustoms = True):
@@ -198,7 +198,7 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
   li = xbmcgui.ListItem(entry[Constants.NAME])
   arts = loadData()[CUSTOM_ARTS]
   try:
-    for key in arts.split(DIR_SEP):
+    for key in addToStartPath.split(DIR_SEP):
       arts = arts[key]
   except:
     arts = None
@@ -256,7 +256,7 @@ def addCustomEntry(exe="/", icon="/", background="/", name="", path=""):
 
 def setCustomArtDialog(path, isBackground):
   dialog = xbmcgui.Dialog()
-  entry = getApplist()
+  entry = getAppList()
   for key in path.split(DIR_SEP):
     entry = entry[key]
   default = "/"
