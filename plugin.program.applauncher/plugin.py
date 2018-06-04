@@ -38,9 +38,11 @@ ACTION_REMOVE_FROM_CUSTOMS = "removefromcustoms"
 ACTION_ADD_CUSTOM_FOLDER = "addcustomfolder"
 ACTION_SET_CUSTOM_ICON = "setcustomicon"
 ACTION_SET_CUSTOM_BACKGROUND = "setcustombackground"
+ACTION_UNSET_CUSTOM_ICON = "unsetcustomicon"
+ACTION_UNSET_CUSTOM_BACKGROUND = "unsetcustombackground"
 ACTION_MOVE_TO_FOLDER = "movetofolder"
 ACTION_EXEC = "exec"
-FORCE_REFRESH = "forcerefresh"
+ACTION_FORCE_REFRESH = "forcerefresh"
 CUSTOM_ENTRIES = "custom"
 CUSTOM_ARTS = "arts"
 DIR = "dir"
@@ -57,6 +59,8 @@ MOVE_TO_FOLDER_STRING = "Move entry to folder"
 FORCE_REFRESH_STRING = "Force refresh"
 SET_CUSTOM_ICON_STRING = "Set custom icon"
 SET_CUSTOM_BACKGROUND_STRING = "Set custom background"
+UNSET_CUSTOM_ICON_STRING = "Unset custom icon"
+UNSET_CUSTOM_BACKGROUND_STRING = "Unset custom background"
 ICON_TITLE_STRING = "Icon"
 BACKGROUND_TITLE_STRING = "Background"
 CHOSE_TITLE_STRING = "Select "
@@ -72,7 +76,7 @@ def addAddCustomFolderButton(handle, path):
 
 def addForceRefreshButton(contextMenu, path, isCustom):
   #print PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"
-  contextMenu.append((FORCE_REFRESH_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"))
+  contextMenu.append((FORCE_REFRESH_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_FORCE_REFRESH+")"))
   return contextMenu
 
 def addSideCallEntries(contextMenu, sideCalls):
@@ -92,6 +96,12 @@ def addAddStartToCustomEntries(contextMenu, path):
   return contextMenu
 def addCustomVariantEntry(contextMenu, path):
   contextMenu.append((CREATE_CUSTOM_VARIANT_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_ADD_CUSTOM_VARIANT+"&"+DIR+"="+path+")"))
+  return contextMenu
+def addUnsetCustomIconEntry(contextMenu, path):
+  contextMenu.append((UNSET_CUSTOM_ICON_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_UNSET_CUSTOM_ICON+"&"+DIR+"="+path+")"))
+  return contextMenu
+def addUnsetCustomBackgroundEntry(contextMenu, path):
+  contextMenu.append((UNSET_CUSTOM_BACKGROUND_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_UNSET_CUSTOM_BACKGROUND+"&"+DIR+"="+path+")"))
   return contextMenu
 def addSetCustomIconEntry(contextMenu, path):
   contextMenu.append((SET_CUSTOM_ICON_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_ICON+"&"+DIR+"="+path+")"))
@@ -174,7 +184,7 @@ def createFolder(name, target, path, isCustom):
   li.addContextMenuItems(contextMenu)
   return li
 
-def addBaseContextMenu(contextMenu, path, isCustom, isFolder):
+def addBaseContextMenu(contextMenu, path, isCustom, isFolder, hasCustomIcon=True, hasCustomBackground=True):
   if isCustom:
     if not isFolder:
       addRemoveCustomEntry(contextMenu, path)
@@ -182,8 +192,14 @@ def addBaseContextMenu(contextMenu, path, isCustom, isFolder):
     if not isFolder:
       addCustomVariantEntry(contextMenu, path)
       addAddStartToCustomEntries(contextMenu, path)
-      addSetCustomIconEntry(contextMenu, path)
-      addSetCustomBackgroundEntry(contextMenu, path)
+      if hasCustomIcon:
+        addUnsetCustomIconEntry(contextMenu, path)
+      else:
+        addSetCustomIconEntry(contextMenu, path)
+      if hasCustomBackground:
+        addUnsetCustomBackgroundEntry(contextMenu, path)
+      else:
+        addSetCustomBackgroundEntry(contextMenu, path)
 
   i = path.rfind(DIR_SEP)
   if i != 0:
@@ -202,9 +218,11 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
       arts = arts[key]
   except:
     arts = None
-
+  hasCustomIcon = False
+  hasCustomBackground = False
   if arts and Constants.ICON in arts.keys():
     icon = arts[Constants.ICON]
+    hasCustomIcon = True
   elif Constants.ICON in entry:
     icon = entry[Constants.ICON]
   else:
@@ -212,6 +230,7 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
 
   if arts and Constants.BACKGROUND in arts.keys():
     background = arts[Constants.BACKGROUND]
+    hasCustomBackground = True
   elif Constants.BACKGROUND in entry:
     background = entry[Constants.BACKGROUND]
   else:
@@ -227,7 +246,7 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
   contextMenu = []
   if Constants.SIDECALLS in entry.keys():
     addSideCallEntries(contextMenu, entry[Constants.SIDECALLS])
-  addBaseContextMenu(contextMenu, addToStartPath, isCustom, False)
+  addBaseContextMenu(contextMenu, addToStartPath, isCustom, False, hasCustomIcon, hasCustomBackground)
   li.addContextMenuItems(contextMenu)
   li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_EXEC+"&"+ACTION_EXEC+"="+entry[Constants.EXEC])
   return li
@@ -253,6 +272,18 @@ def addCustomEntry(exe="/", icon="/", background="/", name="", path=""):
   if name == "":
     return
   storeEntry(fileName + " " + params, icon, background, name)
+
+def unsetCustomArtDialog(path, isBackground):
+  if isBackground:
+    entryKey = Constants.BACKGROUND
+  else:
+    entryKey = Constants.ICON
+  data = loadData()
+  storepoint = data[CUSTOM_ARTS]
+  for key in path.split(DIR_SEP):
+    storepoint = storepoint[key]
+  del storepoint[entryKey]
+  writeData(data)
 
 def setCustomArtDialog(path, isBackground):
   dialog = xbmcgui.Dialog()
@@ -385,9 +416,6 @@ if (__name__ == "__main__"):
   addSortingMethods()
   xbmc.executebuiltin("Container.SetViewMode(icons)")
   cache = StorageServer.StorageServer(ADDON_ID, 24)
-  if FORCE_REFRESH in params:
-    ##print "force refresh"
-    cache.delete("apps")
   if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
   if ACTION in params:
@@ -396,14 +424,20 @@ if (__name__ == "__main__"):
       executeApp(params[ACTION_EXEC])
     elif action == ACTION_ADD_START_TO_CUSTOM:
       addStartEntryAsCustom(params[DIR])      
+    elif action == ACTION_FORCE_REFRESH:
+      cache.delete("apps")      
     elif action == ACTION_ADD_CUSTOM_ENTRY:
       addCustomEntry(path = params[DIR])
     elif action == ACTION_ADD_CUSTOM_VARIANT:
       addCustomVariant(params[DIR])
     elif action == ACTION_SET_CUSTOM_ICON:
-     setCustomArtDialog(params[DIR], False)
+      setCustomArtDialog(params[DIR], False)
     elif action == ACTION_SET_CUSTOM_BACKGROUND:
-     setCustomArtDialog(params[DIR], True)
+      setCustomArtDialog(params[DIR], True)
+    elif action == ACTION_UNSET_CUSTOM_ICON:
+      unsetCustomArtDialog(params[DIR], False)
+    elif action == ACTION_UNSET_CUSTOM_BACKGROUND:
+      unsetCustomArtDialog(params[DIR], True)
     elif action == ACTION_REMOVE_FROM_CUSTOMS:
       removeFromCustoms(params[DIR])
     elif action == ACTION_SHOW_DIR:
