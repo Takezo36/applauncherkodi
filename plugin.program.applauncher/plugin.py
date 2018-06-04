@@ -139,16 +139,16 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
     if key == Constants.TYPE or key == Constants.NAME:
       continue
     entry = entries[key]
+    if not isRoot:
+      path = folderToShow + DIR_SEP + key
+    else:
+      path = key
     if entry[Constants.TYPE] == Constants.TYPE_APP:
-      li = createAppEntry(entry, folderToShow+DIR_SEP+key, isCustom)
+      li = createAppEntry(entry, path, isCustom)
       xbmcplugin.addDirectoryItem(handle, li.getPath(), li)
     elif entry[Constants.TYPE] == Constants.TYPE_FOLDER:
-      if not isRoot:
-        folderLink = folderToShow + DIR_SEP + key
-      else:
-        folderLink = key
-      kodiAction = "plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(folderLink)+"&"+IS_CUSTOM+"="+str(int(isCustom))
-      li = createFolder(key, kodiAction, folderLink, isCustom)
+      kodiAction = "plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+IS_CUSTOM+"="+str(int(isCustom))
+      li = createFolder(key, kodiAction, path, isCustom)
       xbmcplugin.addDirectoryItem(handle, li.getPath(), li, isFolder=True)
   
 
@@ -254,7 +254,7 @@ def addStartEntryAsCustom(path):
   entry = getAppList()
   for key in path.split(DIR_SEP):
     entry = entry[key]
-  storeEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.NAME])
+  storeEntry(entry[Constants.EXEC], entry[Constants.ICON], "", entry[Constants.NAME])
 
 def addCustomEntry(exe="/", icon="/", background="/", name="", path=""):
   dialog = xbmcgui.Dialog()
@@ -379,8 +379,6 @@ def loadData():
 def removeFromCustoms(path):
   data = loadData()
 #  #print "path " + path
-  if path[0] == DIR_SEP:
-    path = path[1:]
  # #print "path " + path
   deleteName = path.split(DIR_SEP)[-1]
   entries = data[CUSTOM_ENTRIES]
