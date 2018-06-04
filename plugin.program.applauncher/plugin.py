@@ -103,11 +103,11 @@ def addUnsetCustomIconEntry(contextMenu, path):
 def addUnsetCustomBackgroundEntry(contextMenu, path):
   contextMenu.append((UNSET_CUSTOM_BACKGROUND_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_UNSET_CUSTOM_BACKGROUND+"&"+DIR+"="+path+")"))
   return contextMenu
-def addSetCustomIconEntry(contextMenu, path):
-  contextMenu.append((SET_CUSTOM_ICON_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_ICON+"&"+DIR+"="+path+")"))
+def addSetCustomIconEntry(contextMenu, path, isCustom):
+  contextMenu.append((SET_CUSTOM_ICON_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_ICON+"&"+DIR+"="+path+"&"+IS_CUSTOM+"="+str(int(isCustom))+")"))
   return contextMenu
-def addSetCustomBackgroundEntry(contextMenu, path):
-  contextMenu.append((SET_CUSTOM_BACKGROUND_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_BACKGROUND+"&"+DIR+"="+path+")"))
+def addSetCustomBackgroundEntry(contextMenu, path, isCustom):
+  contextMenu.append((SET_CUSTOM_BACKGROUND_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_SET_CUSTOM_BACKGROUND+"&"+DIR+"="+path+"&"+IS_CUSTOM+"="+str(int(isCustom))+")"))
   return contextMenu
 
 def createEntries(folderToShow = "", folderIsInCustoms = True):
@@ -192,14 +192,15 @@ def addBaseContextMenu(contextMenu, path, isCustom, isFolder, hasCustomIcon=True
     if not isFolder:
       addCustomVariantEntry(contextMenu, path)
       addAddStartToCustomEntries(contextMenu, path)
-      if hasCustomIcon:
-        addUnsetCustomIconEntry(contextMenu, path)
-      else:
-        addSetCustomIconEntry(contextMenu, path)
-      if hasCustomBackground:
-        addUnsetCustomBackgroundEntry(contextMenu, path)
-      else:
-        addSetCustomBackgroundEntry(contextMenu, path)
+  if not isFolder:
+    if hasCustomIcon:
+      addUnsetCustomIconEntry(contextMenu, path)
+    else:
+      addSetCustomIconEntry(contextMenu, path, isCustom)
+    if hasCustomBackground:
+      addUnsetCustomBackgroundEntry(contextMenu, path)
+    else:
+      addSetCustomBackgroundEntry(contextMenu, path, isCustom)
 
   i = path.rfind(DIR_SEP)
   if i != 0:
@@ -285,9 +286,14 @@ def unsetCustomArtDialog(path, isBackground):
   del storepoint[entryKey]
   writeData(data)
 
-def setCustomArtDialog(path, isBackground):
+def setCustomArtDialog(path, isBackground, isCustom):
   dialog = xbmcgui.Dialog()
-  entry = getAppList()
+  data = loadData()
+  if isCustom:
+    entry = data[CUSTOM_ENTRIES]
+  else:
+    entry = getAppList()
+  
   for key in path.split(DIR_SEP):
     entry = entry[key]
   default = "/"
@@ -305,7 +311,7 @@ def setCustomArtDialog(path, isBackground):
   art = dialog.browseSingle(1, title, 'files', '', False, False, default)
   if art == "":
     return
-  data = loadData()
+
   storepoint = data[CUSTOM_ARTS]
   for key in path.split(DIR_SEP):
     if key in storepoint.keys():
@@ -429,9 +435,9 @@ if (__name__ == "__main__"):
     elif action == ACTION_ADD_CUSTOM_VARIANT:
       addCustomVariant(params[DIR])
     elif action == ACTION_SET_CUSTOM_ICON:
-      setCustomArtDialog(params[DIR], False)
+      setCustomArtDialog(params[DIR], False, strtobool(params[IS_CUSTOM]))
     elif action == ACTION_SET_CUSTOM_BACKGROUND:
-      setCustomArtDialog(params[DIR], True)
+      setCustomArtDialog(params[DIR], True, strtobool(params[IS_CUSTOM]))
     elif action == ACTION_UNSET_CUSTOM_ICON:
       unsetCustomArtDialog(params[DIR], False)
     elif action == ACTION_UNSET_CUSTOM_BACKGROUND:
