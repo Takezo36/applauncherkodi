@@ -20,7 +20,7 @@ try:
    import StorageServer
 except:
    import storageserverdummy as StorageServer
-
+ 
 
 ADDON = xbmcaddon.Addon()
 ADDON_VERSION = ADDON.getAddonInfo('version')
@@ -50,21 +50,22 @@ IS_CUSTOM = "iscustom"
 handle = -1
 PLUGIN_ACTION = "Container.Update(plugin://plugin.program.applauncher?"
 DIR_SEP = "$%$"
-CREATE_CUSTOM_ENTRY_STRING = "Create custom entry"
-CREATE_CUSTOM_FOLDER_STRING = "Create custom folder"
-CREATE_CUSTOM_VARIANT_STRING = "Create custom variant"
-ADD_START_ENTRY_TO_CUSTOMS_STRING = "Add to custom entries"
-REMOVE_CUSTOM_ENTRY_STRING = "Remove from custom entries"
-MOVE_TO_FOLDER_STRING = "Move entry to folder"
-FORCE_REFRESH_STRING = "Force refresh"
-SET_CUSTOM_ICON_STRING = "Set custom icon"
-SET_CUSTOM_BACKGROUND_STRING = "Set custom background"
-UNSET_CUSTOM_ICON_STRING = "Unset custom icon"
-UNSET_CUSTOM_BACKGROUND_STRING = "Unset custom background"
-ICON_TITLE_STRING = "Icon"
-BACKGROUND_TITLE_STRING = "Background"
-CHOSE_TITLE_STRING = "Select "
-
+CREATE_CUSTOM_ENTRY_STRING = ADDON.getLocalizedString(35000)
+CREATE_CUSTOM_FOLDER_STRING = ADDON.getLocalizedString(35001)
+CREATE_CUSTOM_VARIANT_STRING = ADDON.getLocalizedString(35002)
+ADD_START_ENTRY_TO_CUSTOMS_STRING = ADDON.getLocalizedString(35003)
+REMOVE_CUSTOM_ENTRY_STRING = ADDON.getLocalizedString(35004)
+MOVE_TO_FOLDER_STRING = ADDON.getLocalizedString(35005)
+FORCE_REFRESH_STRING = ADDON.getLocalizedString(35006)
+SET_CUSTOM_ICON_STRING = ADDON.getLocalizedString(35007)
+SET_CUSTOM_BACKGROUND_STRING = ADDON.getLocalizedString(35008)
+UNSET_CUSTOM_ICON_STRING = ADDON.getLocalizedString(35009)
+UNSET_CUSTOM_BACKGROUND_STRING = ADDON.getLocalizedString(35010)
+ICON_TITLE_STRING = ADDON.getLocalizedString(35011)
+BACKGROUND_TITLE_STRING = ADDON.getLocalizedString(35012)
+SELECT_EXECUTION_FILE_STRING = ADDON.getLocalizedString(35013)
+ADD_PARAMETERS_STRING = ADDON.getLocalizedString(35014)
+SET_NAME_STRING = ADDON.getLocalizedString(35015)
 def addAddCustomEntryButton(handle, path):
   li = xbmcgui.ListItem(CREATE_CUSTOM_ENTRY_STRING)
   li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_ENTRY+"&"+DIR+"="+urllib.quote(path))
@@ -259,17 +260,18 @@ def addStartEntryAsCustom(path):
 
 def addCustomEntry(exe="/", icon="/", background="/", name="", path=""):
   dialog = xbmcgui.Dialog()
-  fileName = dialog.browseSingle(1, 'Select Execution File', 'files', '', False, False, exe)
+
+  fileName = dialog.browseSingle(1, SELECT_EXECUTION_FILE_STRING, 'files', '', False, False, exe)
   if fileName == "":
     return
-  params = dialog.input("Add parameters")
-  icon = dialog.browseSingle(1, 'Select Icon', 'files', '', False, False, icon)
+  params = dialog.input(ADD_PARAMETERS_STRING)
+  icon = dialog.browseSingle(1, ICON_TITLE_STRING, 'files', '', False, False, icon)
   if icon == "":
     return
-  background = dialog.browseSingle(1, 'Select Background', 'files', '', False, False, icon)
+  background = dialog.browseSingle(1, BACKGROUND_TITLE_STRING, 'files', '', False, False, icon)
   if background == "":
     return
-  name = dialog.input("Set name", name)
+  name = dialog.input(SET_NAME_STRING, name)
   if name == "":
     return
   storeEntry(fileName + " " + params, icon, background, name)
@@ -299,12 +301,12 @@ def setCustomArtDialog(path, isBackground, isCustom):
   default = "/"
   if isBackground:
     entryKey = Constants.BACKGROUND
-    title = CHOSE_TITLE_STRING + BACKGROUND_TITLE_STRING
+    title = BACKGROUND_TITLE_STRING
     if Constants.BACKGROUND in entry.keys():
       default = entry[Constants.BACKGROUND]
   else:
     entryKey = Constants.ICON
-    title = CHOSE_TITLE_STRING + ICON_TITLE_STRING
+    title = ICON_TITLE_STRING
     if Constants.ICON in entry.keys():
       default = entry[Constants.ICON]
 
@@ -400,7 +402,7 @@ def removeFromCustoms(path):
   ##print entries
   ##print data
   writeData(data)
-def addCustomFolder():
+def addCustomFolder(path):
   pass
 def moveItemToFolder(path):
   pass

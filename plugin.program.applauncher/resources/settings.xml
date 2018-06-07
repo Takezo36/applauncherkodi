@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <category label="General">
-        <setting label="Minimize Kodi after starting an app. Kodi will NOT maximize after the app has closed" type="bool" id="minimize" default="false"/>
-        <setting label="Kill Kodi after starting an app and restart it after the app is closed" type="bool" id="killkodi" default="false"/>
-        <setting label="Don't show your OS provided app listing" type="bool" id="dontshowstart" default="false"/>
-        <setting label="Kill Kodi after a started app has finished. This can be used combined with the minimize option if you have a demon which restarts Kodi anyway." type="bool" id="killafterappclose" default="false"/>
+    <category label="36000">
+        <setting label="36001" type="bool" id="minimize" default="false"/>
+        <setting label="36002" type="bool" id="killkodi" default="false"/>
+        <setting label="36003" type="bool" id="dontshowstart" default="false"/>
+        <setting label="36004" type="bool" id="killafterappclose" default="false"/>
         
     </category>
     <category label="Linux">
         <setting label="" type="bool" id="showsvgmsg" default="true" visible="false"/>
-        <setting label="SVG2PNG executable" type="text" id="svgpath" default="rsvg-convert -w 128 -h 128 -o %output %input"/>
+        <setting label="36005" type="text" id="svgpath" default="rsvg-convert -w 128 -h 128 -o %output %input"/>
     </category>
     <category label="Windows">
     </category>

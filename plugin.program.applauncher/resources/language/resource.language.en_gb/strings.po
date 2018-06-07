@@ -1,7 +1,7 @@
 # Kodi Media Center language file
-# Addon Name: AppLauncher
-# Addon id: plugin.program.applauncher
-# Addon Provider: Takezo36
+# Addon Name: YouTube
+# Addon id: plugin.video.youtube
+# Addon Provider: bromix
 
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: benni36@gmx.de\n"

@@ -12,7 +12,7 @@
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en_US\n"
+"Language: de_de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 
@@ -26,92 +26,91 @@ msgid "YouTube is a one of the biggest video-sharing websites of the world."
 msgstr ""
 
 msgctxt "#35000"
-msgid "Create custom entry"
+msgid "Erstellen einen benutzerdefinierten Eintrag"
 msgstr ""
 
 msgctxt "#35001"
-msgid "Create custom folder"
+msgid "Erstellen eines benutzerdefinierten Ordners"
 msgstr ""
 
 msgctxt "#35002"
-msgid "Create custom variant"
+msgid "Benutzerdefinierte Variante erstellen"
 msgstr ""
 
 msgctxt "#35003"
-msgid "Add to custom entries"
+msgid "Zu benutzerdefinierten Einträgen hinzufügen"
 msgstr ""
 
 msgctxt "#35004"
-msgid "Remove from custom entries"
+msgid "Von benutzerdefinierten Einträgen entfernen"
 msgstr ""
 
 msgctxt "#35005"
-msgid "Move entry to folder"
+msgid "Eintrag in Ordner verschieben"
 msgstr ""
 
 msgctxt "#35006"
-msgid "Force refresh"
+msgid "Aktualisierung erzwingen"
 msgstr ""
 
 msgctxt "#35007"
-msgid "Set custom icon"
+msgid "Benutzerdefiniertes Symbol festlegen"
 msgstr ""
 
 msgctxt "#35008"
-msgid "Set custom background"
+msgid "Benutzerdefinierten Hintergrund festlegen"
 msgstr ""
 
 msgctxt "#35009"
-msgid "Unset custom icon"
+msgid "Benutzerdefiniertes Symbol entfernen"
 msgstr ""
 
 msgctxt "#35010"
-msgid "Unset custom background"
+msgid "Benutzerdefinierten Hintergrund entfernen"
 msgstr ""
 
 msgctxt "#35011"
-msgid "Select icon"
+msgid "Symbol auswählen"
 msgstr ""
 
 msgctxt "#35012"
-msgid "Select background"
+msgid "Hintergrund auswählen"
 msgstr ""
 
 msgctxt "#35013"
-msgid "Select Execution File"
+msgid "Ausführungsdatei auswählen"
 msgstr ""
 
 msgctxt "#35014"
-msgid "Add parameters"
+msgid "Parameter hinzufügen"
 msgstr ""
 
 msgctxt "#35015"
-msgid "Set name"
+msgid "Name eingeben"
 msgstr ""
 
 #settings
 
 msgctxt "#36000"
-msgid "General"
+msgid "Allgemeines"
 msgstr ""
 
 msgctxt "#36001"
-msgid "Minimize Kodi after starting an app. Kodi will NOT maximize after the app has closed"
+msgid "Kodi nach dem Start einer App minimieren. Kodi maximiert NICHT, nachdem die App geschlossen wurde"
 msgstr ""
 
 msgctxt "#36002"
-msgid "Close Kodi after starting an app and restart it after the app is closed"
+msgid "Kodi nach dem Start einer App schließen und nach dem Schließen der App neu starten"
 msgstr ""
 
 msgctxt "#36003"
-msgid "Don't show your OS provided app listing"
+msgid "Apps die vom Betriebssystem bereitgestellt sind nicht anzeigen"
 msgstr ""
 
 msgctxt "#36004"
-msgid "Close Kodi after a started app has finished. This can be used combined with the minimize option if you have a daemon which restarts Kodi anyway."
+msgid "Kodi schließen, nachdem eine gestartete App beendet wurde. Dies kann in Kombination mit der Minimieren-Option verwendet werden, wenn Sie einen Daemon haben, der Kodi trotzdem neu startet."
 msgstr ""
 
 msgctxt "#36005"
-msgid "SVG2PNG executable"
+msgid "SVG2PNG Programm"
 msgstr ""
-
