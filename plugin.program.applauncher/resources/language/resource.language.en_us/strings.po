@@ -1,7 +1,7 @@
 # Kodi Media Center language file
-# Addon Name: AppLauncher
-# Addon id: plugin.program.applauncher
-# Addon Provider: Takezo36
+# Addon Name: YouTube
+# Addon id: plugin.video.youtube
+# Addon Provider: bromix
 
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: benni36@gmx.de\n"
@@ -89,6 +89,22 @@ msgctxt "#35015"
 msgid "Set name"
 msgstr ""
 
+msgctxt "#35016"
+msgid "Add folder"
+msgstr ""
+
+msgctxt "#35017"
+msgid "Move entry to folder"
+msgstr ""
+
+msgctxt "#35018"
+msgid "Failed to add folder"
+msgstr ""
+
+msgctxt "#35019"
+msgid "In the path for the new folder is a part which is an app name. This is invalid"
+msgstr ""
+
 #settings
 
 msgctxt "#36000"
@@ -113,5 +129,9 @@ msgstr ""
 
 msgctxt "#36005"
 msgid "SVG2PNG executable"
+msgstr ""
+
+msgctxt "#36006"
+msgid "Directory seperator. Select either a forbidden character in file system or a weird combination of characters"
 msgstr ""
 

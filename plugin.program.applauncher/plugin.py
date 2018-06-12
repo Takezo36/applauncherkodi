@@ -66,6 +66,10 @@ BACKGROUND_TITLE_STRING = ADDON.getLocalizedString(35012)
 SELECT_EXECUTION_FILE_STRING = ADDON.getLocalizedString(35013)
 ADD_PARAMETERS_STRING = ADDON.getLocalizedString(35014)
 SET_NAME_STRING = ADDON.getLocalizedString(35015)
+ADD_FOLDER_STRING = ADDON.getLocalizedString(35016)
+MOVE_ENTRY_TO_FOLDER_STRING = ADDON.getLocalizedString(35017)
+HEADER_FAIL_CUSTOM_ENTRY_STRING = ADDON.getLocalizedString(35018)
+CUSTOM_FOLDER_CREATION_FAIL_STRING = ADDON.getLocalizedString(35019)
 def addAddCustomEntryButton(handle, path):
   li = xbmcgui.ListItem(CREATE_CUSTOM_ENTRY_STRING)
   li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_ENTRY+"&"+DIR+"="+urllib.quote(path))
@@ -75,7 +79,7 @@ def addAddCustomFolderButton(handle, path):
   li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_ADD_CUSTOM_FOLDER+"&"+DIR+"="+urllib.quote(path))
   xbmcplugin.addDirectoryItem(handle, li.getPath(), li) 
 
-def addForceRefreshButton(contextMenu, path, isCustom):
+def addForceRefreshButton(contextMenu):
   #print PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"
   contextMenu.append((FORCE_REFRESH_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_FORCE_REFRESH+")"))
   return contextMenu
@@ -85,7 +89,7 @@ def addSideCallEntries(contextMenu, sideCalls):
     contextMenu.append((sideCall[Constants.NAME], PLUGIN_ACTION+ACTION+"="+ACTION_EXEC+"&"+ACTION_EXEC+"="+sideCall[Constants.EXEC]+")"))
   return contextMenu
 
-def addRemoveCustomFolder(contextMenu, path):
+def addMoveEntryToFolderEntry(contextMenu, path):
   contextMenu.append((MOVE_TO_FOLDER_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_MOVE_TO_FOLDER+"&"+DIR+"="+path+")"))
   return contextMenu
 
@@ -125,7 +129,7 @@ def createEntries(folderToShow = "", folderIsInCustoms = True):
       addStartEntries(folderToShow, isRoot)
   if folderIsInCustoms or isRoot:
     addAddCustomEntryButton(handle, folderToShow)
-    #addAddCustomFolderButton(handle, folderToShow)
+    addAddCustomFolderButton(handle, folderToShow)
   xbmcplugin.endOfDirectory(handle, cacheToDisc=False)  
 
 def getFolder(entries, folderToShow):
@@ -188,7 +192,8 @@ def createFolder(name, target, path, isCustom):
 def addBaseContextMenu(contextMenu, path, isCustom, isFolder, hasCustomIcon=True, hasCustomBackground=True):
   if isCustom:
     if not isFolder:
-      addRemoveCustomEntry(contextMenu, path)
+      addMoveEntryToFolderEntry(contextMenu, path)
+    addRemoveCustomEntry(contextMenu, path)
   else:
     if not isFolder:
       addCustomVariantEntry(contextMenu, path)
@@ -203,14 +208,8 @@ def addBaseContextMenu(contextMenu, path, isCustom, isFolder, hasCustomIcon=True
     else:
       addSetCustomBackgroundEntry(contextMenu, path, isCustom)
 
-  i = path.rfind(DIR_SEP)
-  if i != 0:
-    refreshPath = path[:i]
-  else:
-    refreshPath = ""
-  if refreshPath.find(DIR_SEP) == -1:
-    refreshPath = ""
-  addForceRefreshButton(contextMenu, refreshPath, isCustom)
+
+  addForceRefreshButton(contextMenu)
 
 def createAppEntry(entry, addToStartPath, isCustom = False):
   li = xbmcgui.ListItem(entry[Constants.NAME])
@@ -274,7 +273,7 @@ def addCustomEntry(exe="/", icon="/", background="/", name="", path=""):
   name = dialog.input(SET_NAME_STRING, name)
   if name == "":
     return
-  storeEntry(fileName + " " + params, icon, background, name)
+  storeEntry(fileName + " " + params, icon, background, name, path)
 
 def unsetCustomArtDialog(path, isBackground):
   if isBackground:
@@ -331,7 +330,6 @@ def storeEntry(exe="/", icon="/", background="/", name="", path=""):
   entry[Constants.ICON] = icon
   entry[Constants.BACKGROUND] = background
   entry[Constants.TYPE] = Constants.TYPE_APP
-#  entry[REMOVE_START] = path+name
   data = loadData()
   storepoint = data[CUSTOM_ENTRIES]
   if path != "":
@@ -403,9 +401,62 @@ def removeFromCustoms(path):
   ##print data
   writeData(data)
 def addCustomFolder(path):
-  pass
+  dialog = xbmcgui.Dialog()
+  userInput = dialog.input(ADD_FOLDER_STRING)
+  if userInput == "":
+    return
+  userPath = userInput.split(DIR_SEP)
+
+  if userPath[0] == "":
+    #add from root
+    createPath = userPath[1:]
+  else:
+    if path == "":
+      createPath = userPath
+    else:
+      createPath = path.split(DIR_SEP) + userPath
+  data = loadData()
+  getCustomFolder(data, createPath)
+  writeData(data)
+
+
+
+def getCustomFolder(data, createPath):
+  customEntries = data[CUSTOM_ENTRIES]
+  for folder in createPath:
+    if folder in customEntries.keys():
+      if not customEntries[folder][Constants.TYPE] == Constants.TYPE_FOLDER:
+        dialog.ok(HEADER_FAIL_CUSTOM_ENTRY_STRING, CUSTOM_FOLDER_CREATION_FAIL_STRING)
+        return None
+    else:
+      customEntries[folder] = {}
+      customEntries[folder][Constants.TYPE] = Constants.TYPE_FOLDER
+      customEntries[folder][Constants.NAME] = folder
+    customEntries = customEntries[folder]
+  return customEntries
+
 def moveItemToFolder(path):
-  pass
+  dialog = xbmcgui.Dialog()
+  newPath = dialog.input(MOVE_ENTRY_TO_FOLDER_STRING).split(DIR_SEP)
+  temp = path.split(DIR_SEP)
+  entry = temp[-1]
+  entryPath = temp[:-1]
+  
+  if newPath == None:
+    return
+  if newPath[0] == "":
+    #add from root
+    newPath = newPath[1:]
+  else:
+    newPath = entryPath + newPath
+  data = loadData()
+  folder = getCustomFolder(data, newPath)
+  originalPath = data[CUSTOM_ENTRIES]
+  for d in entryPath:
+    originalPath = originalPath[d]
+  folder[entry] = originalPath[entry]
+  del originalPath[entry]
+  writeData(data)
 
 def parseArgs():
   global handle
@@ -420,7 +471,7 @@ def parseArgs():
 if (__name__ == "__main__"):
   params = parseArgs()
   addSortingMethods()
-  xbmc.executebuiltin("Container.SetViewMode(icons)")
+  xbmc.executebuiltin("Container.SetViewMode(Icons)")
   cache = StorageServer.StorageServer(ADDON_ID, 24)
   if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
@@ -450,7 +501,7 @@ if (__name__ == "__main__"):
       createEntries(params[DIR], strtobool(params[IS_CUSTOM]))
      # addSortingMethods()
     elif action == ACTION_ADD_CUSTOM_FOLDER:
-      addCustomFolder()
+      addCustomFolder(params[DIR])
     elif action == ACTION_MOVE_TO_FOLDER:
       moveItemToFolder(params[DIR])
       
