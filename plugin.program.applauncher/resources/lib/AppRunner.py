@@ -22,8 +22,7 @@ def runLinuxDemon(kodiExe, command):
   subprocess.Popen((sys.executable + " " + APP_LAUNCHER + " " + command + " " + kodiExe).split(" "))
 
 def runWindowsDemon(kodiExe, command):
-  print ["powershell", 'StartProcess \"' + command + '\" -Wait;StartProcess \"' + kodiExe + '\"']
-  subprocess.Popen(["powershell", 'StartProcess \"' + command + '\" -Wait;StartProcess \"' + kodiExe + '\"'])
+  subprocess.Popen(["powershell", 'Start-Process \"' + command + '\" -Wait;Start-Process \"' + kodiExe + '\"'], creationflags=0x08000000)
 
 def executeApp(command, killKodi, minimize, killAfterAppClose):
   if myOS == "Windows":
