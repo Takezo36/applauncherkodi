@@ -4,6 +4,7 @@
 # This program is Free Software see LICENSE file for details
 
 EXEC = "exec"
+ARGS = "args"
 NAME = "name"
 ICON = "icon"
 BACKGROUND = "background"

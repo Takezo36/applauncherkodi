@@ -109,15 +109,18 @@ def getAppsWithIcons(additionalDir=""):
               desktopEntry = False
               sideCalls.append(sideCall)
             if line.startswith("Exec"):
+              tempExec=line.split("=")[1][:-1]
+              if "%" in tempExec:
+                tempExec = tempExec[:tempExec.find("%")]
+                tempExecSplit = tempExec.split(" ")
               if desktopEntry:
-                entry[Constants.EXEC]=line.split("=")[1][:-1]
-                if "%" in entry[Constants.EXEC]:
-                  entry[Constants.EXEC] = entry[Constants.EXEC][:entry[Constants.EXEC].find("%")]
+                entry[Constants.ARGS] = tempExecSplit[1:]
+                entry[Constants.EXEC] = tempExecSplit[0]  
                 entry[Constants.EXEC] = getFullExecPath(entry[Constants.EXEC])
               else:
-                sideCall[Constants.EXEC]=line.split("=")[1][:-1]
-                if "%" in sideCall[Constants.EXEC]:
-                  sideCall[Constants.EXEC] = sideCall[Constants.EXEC][:sideCall[Constants.EXEC].find("%")]
+                sideCall[Constants.ARGS] = tempExecSplit[1:]
+                sideCall[Constants.EXEC] = tempExecSplit[0]  
+                sideCall[Constants.EXEC] = getFullExecPath(entry[Constants.EXEC])
             elif line.startswith("Name"):
               if desktopEntry:
                 if Constants.NAME not in entry:

@@ -132,6 +132,9 @@ msgid "SVG2PNG executable"
 msgstr ""
 
 msgctxt "#36006"
-msgid "Directory seperator. Select either a forbidden character in file system or a weird combination of characters"
+msgid "Virtual directory seperator used internally. Select either a forbidden character in file system or a weird combination of characters"
 msgstr ""
 
+msgctxt "#36007"
+msgid "Wait Time to catch UWP process. Tweak this setting if you have problems with the close and restart feature in combination with store apps"
+msgstr ""

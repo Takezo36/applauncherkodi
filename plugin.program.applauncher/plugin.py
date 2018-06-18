@@ -24,7 +24,7 @@ except:
 
 ADDON = xbmcaddon.Addon()
 ADDON_VERSION = ADDON.getAddonInfo('version')
-ADDON_ID       = ADDON.getAddonInfo('id')
+ADDON_ID = ADDON.getAddonInfo('id')
 ADDON_USER_DATA_FOLDER = xbmc.translatePath("special://profile/addon_data/"+ADDON_ID)
 APP_LAUNCHER = xbmc.translatePath("special://home")+ "addons" + os.sep + ADDON_ID + os.sep + "resources" + os.sep + "lib" + os.sep + "AppLauncher.py"
 ADDON_STORAGE_FILE = ADDON_USER_DATA_FOLDER + os.sep + "store.json"
@@ -43,6 +43,7 @@ ACTION_UNSET_CUSTOM_BACKGROUND = "unsetcustombackground"
 ACTION_MOVE_TO_FOLDER = "movetofolder"
 ACTION_EXEC = "exec"
 ACTION_FORCE_REFRESH = "forcerefresh"
+ARGS_PARAM = "args"
 CUSTOM_ENTRIES = "custom"
 CUSTOM_ARTS = "arts"
 DIR = "dir"
@@ -80,13 +81,12 @@ def addAddCustomFolderButton(handle, path):
   xbmcplugin.addDirectoryItem(handle, li.getPath(), li) 
 
 def addForceRefreshButton(contextMenu):
-  #print PLUGIN_ACTION+ACTION+"="+ACTION_SHOW_DIR+"&"+DIR+"="+urllib.quote(path)+"&"+FORCE_REFRESH+"=1&"+IS_CUSTOM+"="+str(int(isCustom))+")"
   contextMenu.append((FORCE_REFRESH_STRING, PLUGIN_ACTION+ACTION+"="+ACTION_FORCE_REFRESH+")"))
   return contextMenu
 
 def addSideCallEntries(contextMenu, sideCalls):
   for sideCall in sideCalls:
-    contextMenu.append((sideCall[Constants.NAME], PLUGIN_ACTION+ACTION+"="+ACTION_EXEC+"&"+ACTION_EXEC+"="+sideCall[Constants.EXEC]+")"))
+    contextMenu.append((sideCall[Constants.NAME], PLUGIN_ACTION+ACTION+"="+ACTION_EXEC+"&"+ACTION_EXEC+"="+sideCall[Constants.EXEC]+"&"+ARGS_PARAM+"="+",".join(sideCall[Constants.ARGS])+")"))
   return contextMenu
 
 def addMoveEntryToFolderEntry(contextMenu, path):
@@ -118,7 +118,6 @@ def addSetCustomBackgroundEntry(contextMenu, path, isCustom):
 def createEntries(folderToShow = "", folderIsInCustoms = True):
   customeEntries = None
   startEntries = None
-  folderToShow = urllib.unquote(folderToShow)
   isRoot = False
   if folderToShow == "":
     isRoot = True
@@ -159,31 +158,23 @@ def addEntries(entries, folderToShow, isCustom, isRoot):
 
 def getAppList():
   apps = cache.get("apps")
-  ##print "APPS LOOK: " + apps
   if not apps:
     apps = AppLister.getAppsWithIcons()
     cache.set("apps", json.dumps(apps))
-    #apps2 = cache.get("apps")
-    ##print "APPS LOOK: " + apps2
   else:
     apps = json.loads(apps)
   return apps
   
 def addStartEntries(folderToShow, isRoot):
   entries = getAppList()
-  #entries = AppLister.getAppsWithIcons()
-  ##print "LOOOOOK"
-  ##print entries
   entries = getFolder(entries, folderToShow)
   addEntries(entries, folderToShow, False, isRoot)
 
 
 
 def createFolder(name, target, path, isCustom):
-  ##print target
   li = xbmcgui.ListItem(name)
   li.setPath(path=target)
-  #li.setIsFolder(True)
   contextMenu = []
   addBaseContextMenu(contextMenu, path, isCustom, True)
   li.addContextMenuItems(contextMenu)
@@ -249,21 +240,24 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
     addSideCallEntries(contextMenu, entry[Constants.SIDECALLS])
   addBaseContextMenu(contextMenu, addToStartPath, isCustom, False, hasCustomIcon, hasCustomBackground)
   li.addContextMenuItems(contextMenu)
-  li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_EXEC+"&"+ACTION_EXEC+"="+entry[Constants.EXEC])
+  try:
+    li.setPath(path="plugin://plugin.program.applauncher?"+ACTION+"="+ACTION_EXEC+"&"+ACTION_EXEC+"="+entry[Constants.EXEC]+"&"+ARGS_PARAM+"="+urllib.quote(",".join(entry[Constants.ARGS])))
+  except:
+    xbmc.log("Failed to load entry", xbmc.LOGDEBUG)
   return li
 def addStartEntryAsCustom(path):
   entry = getAppList()
   for key in path.split(DIR_SEP):
     entry = entry[key]
-  storeEntry(entry[Constants.EXEC], entry[Constants.ICON], "", entry[Constants.NAME])
+  storeEntry(entry[Constants.EXEC], entry[Constants.ARGS], entry[Constants.ICON], "", entry[Constants.NAME])
 
-def addCustomEntry(exe="/", icon="/", background="/", name="", path=""):
+def addCustomEntry(exe="/", args="", icon="/", background="/", name="", path=""):
   dialog = xbmcgui.Dialog()
 
   fileName = dialog.browseSingle(1, SELECT_EXECUTION_FILE_STRING, 'files', '', False, False, exe)
   if fileName == "":
     return
-  params = dialog.input(ADD_PARAMETERS_STRING)
+  params = dialog.input(ADD_PARAMETERS_STRING, args)
   icon = dialog.browseSingle(1, ICON_TITLE_STRING, 'files', '', False, False, icon)
   if icon == "":
     return
@@ -273,7 +267,7 @@ def addCustomEntry(exe="/", icon="/", background="/", name="", path=""):
   name = dialog.input(SET_NAME_STRING, name)
   if name == "":
     return
-  storeEntry(fileName + " " + params, icon, background, name, path)
+  storeEntry(fileName, params, icon, background, name, path)
 
 def unsetCustomArtDialog(path, isBackground):
   if isBackground:
@@ -323,10 +317,11 @@ def setCustomArtDialog(path, isBackground, isCustom):
   storepoint[entryKey] = art
   writeData(data)
 
-def storeEntry(exe="/", icon="/", background="/", name="", path=""):
+def storeEntry(exe="/", args="", icon="/", background="/", name="", path=""):
   entry = {}
   entry[Constants.NAME] = name
   entry[Constants.EXEC] = exe
+  entry[Constants.ARGS] = args
   entry[Constants.ICON] = icon
   entry[Constants.BACKGROUND] = background
   entry[Constants.TYPE] = Constants.TYPE_APP
@@ -348,13 +343,13 @@ def addCustomVariant(path):
   entry = getAppList()
   for key in path.split(DIR_SEP):
     entry = entry[key]
-  addCustomEntry(entry[Constants.EXEC], entry[Constants.ICON], entry[Constants.BACKGROUND], entry[Constants.NAME], path)
+  addCustomEntry(entry[Constants.EXEC], entry[Constants.ARGS], entry[Constants.ICON], entry[Constants.BACKGROUND], entry[Constants.NAME], path)
 
-def executeApp(command):
+def executeApp(command, args):
   killKodi = strtobool(ADDON.getSetting("killkodi"))
   minimize = strtobool(ADDON.getSetting("minimize"))
   killAfterAppClose = strtobool(ADDON.getSetting("killafterappclose"))    
-  AppRunner.executeApp(command, killKodi, minimize, killAfterAppClose)
+  AppRunner.executeApp(command, args, killKodi, minimize, killAfterAppClose)
     
 
 def addSortingMethods():
@@ -384,21 +379,13 @@ def loadData():
 
 def removeFromCustoms(path):
   data = loadData()
-#  #print "path " + path
- # #print "path " + path
   deleteName = path.split(DIR_SEP)[-1]
   entries = data[CUSTOM_ENTRIES]
-  ##print entries
-  ##print "deletename " + str(deleteName)
   for key in path.split(DIR_SEP):
-    #print "key " + key
     if key == deleteName:
-   #   #print "removing"
       entries.pop(key, None)
     else:
       entries = entries[key]
-  ##print entries
-  ##print data
   writeData(data)
 def addCustomFolder(path):
   dialog = xbmcgui.Dialog()
@@ -466,7 +453,7 @@ def parseArgs():
   if args:
     for argPair in args.split("&"):
       temp = argPair.split("=")
-      params[temp[0]] = temp[1]
+      params[temp[0]] = urllib.unquote(temp[1])
   return params
 if (__name__ == "__main__"):
   params = parseArgs()
@@ -478,7 +465,7 @@ if (__name__ == "__main__"):
   if ACTION in params:
     action = params[ACTION]
     if action == ACTION_EXEC:
-      executeApp(params[ACTION_EXEC])
+      executeApp(params[ACTION_EXEC],params[ARGS_PARAM])
     elif action == ACTION_ADD_START_TO_CUSTOM:
       addStartEntryAsCustom(params[DIR])      
     elif action == ACTION_FORCE_REFRESH:
@@ -499,7 +486,6 @@ if (__name__ == "__main__"):
       removeFromCustoms(params[DIR])
     elif action == ACTION_SHOW_DIR:
       createEntries(params[DIR], strtobool(params[IS_CUSTOM]))
-     # addSortingMethods()
     elif action == ACTION_ADD_CUSTOM_FOLDER:
       addCustomFolder(params[DIR])
     elif action == ACTION_MOVE_TO_FOLDER:

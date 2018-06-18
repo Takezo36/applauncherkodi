@@ -41,14 +41,17 @@ Add-Type -TypeDefinition $code -ReferencedAssemblies System.Drawing
 $WshShell = New-Object -ComObject ("WScript.Shell");
 $NAME_CONST = "name";
 $EXEC_CONST = "exec";
+$ARGS_CONST = "args";
 $ICON_CONST = "icon";
 $TYPE_CONST = "type";
 $TYPE_APP_CONST = "app";
 $TYPE_FOLDER_CONST = "folder";
 $ALL_APPS_FOLDER_CONST = "all apps";
 $ALLOWED_ICON_TYPES = @(".ico", ".jpg", ".jpeg", ".png", ".bmp");
+$ALLOWED_EXEC_TYPES = @(".exe", ".com", ".bat");
+
 $WINDOWS_STORE_APPS_FOLDER = "Store apps";
-$ICON_STORE_FOLDER = "c:\temp\test1\";#$args[0];
+$ICON_STORE_FOLDER = $args[0];
 $start1 = [Environment]::GetFolderPath('CommonStartMenu')+"\";
 $start2 = [Environment]::GetFolderPath('StartMenu')+"\";
 $startDirs = @($start1, $start2);
@@ -58,18 +61,32 @@ Function addShortCutToDirs($shortCut, $baseDir){
 	if($shortCut.TargetPath -eq ""){
 		return;
 	}
+	if(-not [IO.File]::Exists($shortCut.TargetPath)){
+		return;
+	}
+	$currentExecType = $shortCut.TargetPath.substring($shortCut.TargetPath.length-4);
+	$kill = $true;
+	foreach($execType in $ALLOWED_EXEC_TYPES){
+		if($execType -eq $currentExecType){
+			$kill = $false;
+			break;
+		}
+	}
+	if($kill){
+		return;
+	}
 	$fullName = $shortCut.FullName;
 	$folders = $shortCut.FullName.SubString($baseDir.Length).Split("\");
 	$name = $folders[-1].SubString(0, $folders[-1].Length - 4);
 	$targetPath = [System.Environment]::ExpandEnvironmentVariables($shortCut.TargetPath)
 	$icon = getIcon -icon $shortCut.IconLocation -executable $targetPath;
-	$exec = $targetPath + " " + $shortCut.Arguments;
 	$folder = getFolder -folders $folders -baseDir $baseDir;
 	$appEntry = @{};
 	$appEntry[$ICON_CONST] = $icon;
 	$appEntry[$TYPE_CONST] = $TYPE_APP_CONST;
 	$appEntry[$NAME_CONST] = $name;
-	$appEntry[$EXEC_CONST] = $exec;
+	$appEntry[$EXEC_CONST] = $targetPath;
+	$appEntry[$ARGS_CONST] = @($shortCut.Arguments.split(" "))
 	$folder[$name] = $appEntry;
 	$appData[$ALL_APPS_FOLDER_CONST][$name] = $appEntry;
 }                                                                ;
@@ -214,7 +231,8 @@ Function getStoreApps(){
 		$entry[$TYPE_CONST] = $TYPE_APP_CONST;
 		$entry[$NAME_CONST] = $temp["name"];
 		$entry[$ICON_CONST] = $temp["icon"];
-		$entry[$EXEC_CONST] = "explorer shell:AppsFolder\" + $temp["appId"];
+		$entry[$EXEC_CONST] = "explorer"
+		$entry[$ARGS_CONST] = @("shell:AppsFolder\" + $temp["appId"]);
 		$startAppsFolder[$temp["name"]] = $entry;
 		$appData[$ALL_APPS_FOLDER_CONST][$temp["name"]] = $entry;
 	}
@@ -227,5 +245,5 @@ getStartMenuEntries;
 if([System.Environment]::OSVersion.Version.Major -ge 10){
 	getStoreApps;
 }
-$json = ConvertTo-Json -InputObject $appData -Compress;
+$json = ConvertTo-Json -InputObject $appData -Compress -Depth 100;
 echo $json;

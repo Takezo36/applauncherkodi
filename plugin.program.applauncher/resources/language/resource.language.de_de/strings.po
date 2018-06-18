@@ -114,3 +114,11 @@ msgstr ""
 msgctxt "#36005"
 msgid "SVG2PNG Programm"
 msgstr ""
+
+msgctxt "#36006"
+msgid "Virtueller Verzeichnis Seperator der intern genutzt wird. Entweder ein im Dateisystem verbotener Character oder eine wilde Kombination von Characteren"
+msgstr ""
+
+msgctxt "#36007"
+msgid "Wartezeit um einen UWP Prozess zu finden. Spielen sie mit dieser Einstellung wenn sie Probleme mit der Kodi schließen und wieder starten Option in Kombination mit Store Apps haben"
+msgstr ""

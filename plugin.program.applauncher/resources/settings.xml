@@ -5,12 +5,13 @@
         <setting label="36002" type="bool" id="killkodi" default="false"/>
         <setting label="36003" type="bool" id="dontshowstart" default="false"/>
         <setting label="36004" type="bool" id="killafterappclose" default="false"/>
-        <setting label="36007" type="text" id="dirsep" default="$%$"/>
+        <setting label="36006" type="text" id="dirsep" default="$%$"/>
     </category>
     <category label="Linux">
         <setting label="" type="bool" id="showsvgmsg" default="true" visible="false"/>
         <setting label="36005" type="text" id="svgpath" default="rsvg-convert -w 128 -h 128 -o %output %input"/>
     </category>
     <category label="Windows">
+		<setting label="36007" type="number" id="waittimeuwp" default="1"/>
     </category>
 </settings>
