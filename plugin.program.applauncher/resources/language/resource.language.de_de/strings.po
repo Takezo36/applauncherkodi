@@ -96,11 +96,11 @@ msgid "Allgemeines"
 msgstr ""
 
 msgctxt "#36001"
-msgid "Kodi nach dem Start einer App minimieren. Kodi maximiert NICHT, nachdem die App geschlossen wurde"
+msgid "Kodi beim starten einer App minimieren und nach dem Schließen der App wieder maximieren"
 msgstr ""
 
 msgctxt "#36002"
-msgid "Kodi nach dem Start einer App schließen und nach dem Schließen der App neu starten"
+msgid "Kodi beim starten einer App schließen und nach dem Schließen der App neu starten"
 msgstr ""
 
 msgctxt "#36003"
@@ -121,4 +121,8 @@ msgstr ""
 
 msgctxt "#36007"
 msgid "Wartezeit um einen UWP Prozess zu finden. Spielen sie mit dieser Einstellung wenn sie Probleme mit der Kodi schließen und wieder starten Option in Kombination mit Store Apps haben"
+msgstr ""
+
+msgctxt "#36008"
+msgid "Ordnerstruktur ignorieren und alle OS Apps aufeinmal zeigen"
 msgstr ""

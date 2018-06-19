@@ -123,8 +123,10 @@ def createEntries(folderToShow = "", folderIsInCustoms = True):
     isRoot = True
   if folderIsInCustoms or isRoot:
     addCustomEntries(folderToShow, isRoot)
-  if not folderIsInCustoms or folderToShow == "":
+  if not folderIsInCustoms or isRoot:
     if not strtobool(ADDON.getSetting("dontshowstart")):
+      if strtobool(ADDON.getSetting("flattenapps")):
+        folderToShow = "all apps"
       addStartEntries(folderToShow, isRoot)
   if folderIsInCustoms or isRoot:
     addAddCustomEntryButton(handle, folderToShow)
@@ -348,8 +350,7 @@ def addCustomVariant(path):
 def executeApp(command, args):
   killKodi = strtobool(ADDON.getSetting("killkodi"))
   minimize = strtobool(ADDON.getSetting("minimize"))
-  killAfterAppClose = strtobool(ADDON.getSetting("killafterappclose"))    
-  AppRunner.executeApp(command, args, killKodi, minimize, killAfterAppClose)
+  AppRunner.executeApp(command, args, killKodi, minimize)
     
 
 def addSortingMethods():

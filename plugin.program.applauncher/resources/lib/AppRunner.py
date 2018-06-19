@@ -20,8 +20,9 @@ LINUX_DEMON_PATH = xbmc.translatePath("special://home")+ "addons" + os.sep + ADD
 def getAppsWithIcons(additionalDir=""):
   return MyAppLister.getAppsWithIcons()
 
-def runLinuxDemon(command, args):
+def runLinuxDemon(command, args, killed):
   args.insert(0, (sys.executable + " " + LINUX_DEMON_PATH + " " + command).split(" "))
+  args.append(killed)
   subprocess.Popen(args)
 def runLinux(command, args):
   args.insert(0, command)
@@ -47,33 +48,32 @@ def runWindows(command, args):
     call = ["powershell", "Start-Process \"" + command + "\";"]
   print call
   subprocess.Popen(call, creationflags=0x08000000)
-def executeApp(command, sargs, killKodi, minimize, killAfterAppClose):
+def executeApp(command, sargs, killKodi, minimize):
   if sargs == "":
     args = []
   else:
     args = sargs.split(",")
-  print "Command: " + command
-  print "Args: " + sargs
-  if myOS == "Windows":
-    command = command.replace("/","\\")
+  daemon = False
+  killed = "False"
   if killKodi:
-    if myOS == "Linux":
-      runLinuxDemon(command, args)
-    elif myOS == "Windows":
-      runWindowsDemon(xbmc.translatePath("special://xbmc") + "kodi", command, args)
-#elif myOS == "Darwin":
-#  import AppListerOSX as MyAppLister
+    daemon = True
+    killed = "True"
+  elif minimize:
+    daemon = True
+  if myOS == "Linux":
+    if daemon:
+	  runLinuxDemon(command, args)
     else:
-      runLinuxDemon(command, args)
-    xbmc.executebuiltin("Quit")
-  else:
-    if minimize:
-      xbmc.executebuiltin("Minimize")
-    if myOS == "Linux":
       runLinux(command, args)
-    elif myOS == "Windows":
+  elif myOS == "Windows":
+    if daemon:
+      runWindowsDemon(xbmc.translatePath("special://xbmc") + "kodi", command, args)
+    else:
       runWindows(command, args)
-    if killAfterAppClose:
-      xbmc.executebuiltin("Quit")
+  if minimize:
+    xbmc.executebuiltin("Minimize")
+  if killKodi:
+    xbmc.executebuiltin("Quit")
+      
 
 

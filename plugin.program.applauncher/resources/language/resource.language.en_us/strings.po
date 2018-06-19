@@ -112,11 +112,11 @@ msgid "General"
 msgstr ""
 
 msgctxt "#36001"
-msgid "Minimize Kodi after starting an app. Kodi will NOT maximize after the app has closed"
+msgid "Minimize Kodi when starting an app and maximize after the app has closed"
 msgstr ""
 
 msgctxt "#36002"
-msgid "Close Kodi after starting an app and restart it after the app is closed"
+msgid "Close Kodi when starting an app and restart it after the app is closed"
 msgstr ""
 
 msgctxt "#36003"
@@ -137,4 +137,8 @@ msgstr ""
 
 msgctxt "#36007"
 msgid "Wait Time to catch UWP process. Tweak this setting if you have problems with the close and restart feature in combination with store apps"
+msgstr ""
+
+msgctxt "#36008"
+msgid "Ignore folder structure and show all OS apps at once"
 msgstr ""

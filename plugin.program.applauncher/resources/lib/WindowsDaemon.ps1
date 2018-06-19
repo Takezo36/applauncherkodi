@@ -20,6 +20,6 @@ if($param.Length -ge 1 -and $param[0].StartsWith("shell:AppsFolder\")){
 		}
 	}
 }
-Start-Process $kodiExe -WindowStyle Maximized;
+Start-Process $kodiExe -WindowStyle Maximized -NoNewWindow;
 
 

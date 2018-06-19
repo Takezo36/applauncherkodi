@@ -13,26 +13,27 @@ namespace System {
 			FreeLibrary(lib);
 			return result.ToString();
 		}
-		public static Icon ExtractIcon(string file, int number) {
-			IntPtr large;
-			IntPtr small;
-			ExtractIconEx(file, number, out large, out small, 1);
-			try {
-				return Icon.FromHandle(large);
-			} catch {
-				return null;
-			}
+		public static IntPtr ExtractIcon() {
+			IntPtr lib = LoadLibrary("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe");
+			IntPtr index = new IntPtr(0);
+			IntPtr handle = LoadImage(lib, "#0", 1, 256, 256, 0x00000010);
+			FreeLibrary(lib);
+			return handle;
 		}
 		[DllImport("Shell32.dll", EntryPoint = "ExtractIconExW", CharSet = CharSet.Unicode, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
-		private static extern int ExtractIconEx(string sFile, int iIndex, out IntPtr piLargeVersion, out IntPtr piSmallVersion, int amountIcons);
+		public static extern int ExtractIconEx(string sFile, int iIndex, out IntPtr piLargeVersion, out IntPtr piSmallVersion, int amountIcons);
 		
 		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
-		private static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)]string lpFileName);
+		public static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)]string lpFileName);
 		[DllImport("user32.dll", CharSet = CharSet.Auto)]
-		private static extern int LoadString(IntPtr hInstance, int ID, StringBuilder lpBuffer, int nBufferMax);
+		public static extern int LoadString(IntPtr hInstance, int ID, StringBuilder lpBuffer, int nBufferMax);
+		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)] 
+		public static extern IntPtr LoadImage(IntPtr hinst, [MarshalAs(UnmanagedType.LPTStr)] string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
 		[DllImport("kernel32.dll", SetLastError = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		private static extern bool FreeLibrary(IntPtr hModule);
+		public static extern bool FreeLibrary(IntPtr hModule);
+		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, int dwFlags);
 	}
 	
 }
