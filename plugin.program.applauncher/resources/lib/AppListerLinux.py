@@ -12,13 +12,13 @@ import xbmcgui
 import hashlib
 from distutils.util import strtobool
 
-FAILED_LINE1 = "Linux has a lot of icons as SVGs. Unfortunately Kodi doesn't support SVG."
-FAILED_LINE2 = "Hence you'll need a SVG to PNG converter to see more icons. The default is rsvg-convert which in Ubuntu is in the librsvg2-bin package."
-FAILED_LINE3 = "Either install this or install an alternative and configure the execution string in the settings. (this message will not appear again)"
+FAILED_LINE1 = ADDON.getLocalizedString(35023)
+FAILED_LINE2 = ADDON.getLocalizedString(35024)
+FAILED_LINE3 = ADDON.getLocalizedString(35025)
 
 
 ADDON = xbmcaddon.Addon()
-ADDON_ID       = ADDON.getAddonInfo('id')
+ADDON_ID = ADDON.getAddonInfo('id')
 ADDON_VERSION = ADDON.getAddonInfo('version')
 ADDON_USER_DATA_FOLDER = xbmc.translatePath("special://profile/addon_data/"+ADDON_ID)
 IGNORE_CATEGORIES = ["GNOME", "GTK", "Application", "Core"]
@@ -48,7 +48,6 @@ def discoverIcon(dirName, icon):
   return None
 
 def svg2png(svg):
-  # Assumes the default UTF-8
   hash_object = hashlib.md5(svg.encode())
   outname = ADDON_USER_DATA_FOLDER + "/" + hash_object.hexdigest() + ".png"
   if not os.path.isfile(outname):
@@ -60,24 +59,10 @@ def svg2png(svg):
       return None
   return outname
 
-#this is fucking slow find better way to look up the icons  
-#  if os.path.isfile(dirName) and dirName[-4:] in allowedIconType and icon in dirName:
-   # return dirName
-  #if os.path.isdir(dirName):
- #   for entry in sorted(os.listdir(dirName), reverse=True):
-#      if os.path.isdir(dirName+entry):
-     #   discovered = discoverIcon(dirName+entry+os.sep, icon)
-    #  else:
-   #     discovered = discoverIcon(dirName+entry, icon)
-  #    if discovered is not None:
- #       return discovered
-#  return None
-
 def getBestIcon(icon):
   if os.path.isfile(icon):
     return icon
   return discoverIcon("/usr/share/icons/", icon)
-  
 
 def getAppsWithIcons(additionalDir=""):
   result = {}
@@ -121,7 +106,7 @@ def getAppsWithIcons(additionalDir=""):
                 sideCall[Constants.ARGS] = tempExecSplit[1:]
                 sideCall[Constants.EXEC] = tempExecSplit[0]  
                 sideCall[Constants.EXEC] = getFullExecPath(entry[Constants.EXEC])
-            elif line.startswith("Name"):
+            elif line.startswith("Name="):
               if desktopEntry:
                 if Constants.NAME not in entry:
                   entry[Constants.NAME]=line.split("=")[1][:-1]
@@ -140,8 +125,6 @@ def getAppsWithIcons(additionalDir=""):
                 sideCall[Constants.ICON]=line.split("=")[1][:-1]
             elif line.startswith("Categories"):
               categories = line.split("=")[1][:-1].split(";")
-              #print line
-              #print categories
           if Constants.ICON in entry:
             icon = getBestIcon(entry[Constants.ICON])
             if icon and icon[-4:] == ".svg":
@@ -161,7 +144,6 @@ def getAppsWithIcons(additionalDir=""):
                 if i >= MAX_FOLDER_DEPTH:
                   break
   addFolder(allApps, Constants.ALL_APPS_FOLDER, result)
-#  print result
   return result
 
 def getFullExecPath(target):
@@ -169,7 +151,6 @@ def getFullExecPath(target):
     return target
   else:
     myTarget = target.split(" ")
-  
   cmd = "whereis " + myTarget[0]
   whereis = subprocess.check_output(cmd.split(" ")).split(" ")
   if len(whereis) > 1:
@@ -186,7 +167,6 @@ def addItemToFolder(entry, folderName, parent):
     folder = {}
     addFolder(folder, folderName, parent)
   folder[entry[Constants.NAME]] = entry
-  #print parent
 
 def addFolder(entry, name, parent):
   entry[Constants.TYPE] = Constants.TYPE_FOLDER

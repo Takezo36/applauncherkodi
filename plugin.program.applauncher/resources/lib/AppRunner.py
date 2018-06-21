@@ -20,13 +20,20 @@ LINUX_DEMON_PATH = xbmc.translatePath("special://home")+ "addons" + os.sep + ADD
 def getAppsWithIcons(additionalDir=""):
   return MyAppLister.getAppsWithIcons()
 
-def runLinuxDemon(command, args, killed):
+def runLinuxDemon(command, args):
   args.insert(0, (sys.executable + " " + LINUX_DEMON_PATH + " " + command).split(" "))
-  args.append(killed)
   subprocess.Popen(args)
 def runLinux(command, args):
   args.insert(0, command)
   subprocess.Popen(args)
+def runLinuxMinimize(command, args):
+  from ewmh import EWMH
+  ewmh = EWMH()
+  win = ewmh.getActiveWindow()
+  args.insert(0, command)
+  subprocess.call(args)
+  ewmh.setActiveWindow(win)
+  ewmh.display.flush()
 
 def runWindowsDemon(kodiExe, command, args):
   WINDOWS_DAEMON_SCRIPT_LOCATION = xbmc.translatePath("special://home")+ "addons" + os.sep + ADDON_ID + os.sep + "resources" +os.sep + "lib" + os.sep + "WindowsDaemon.ps1"
@@ -39,41 +46,40 @@ def runWindowsDemon(kodiExe, command, args):
     sargs = ""
   WINDOWS_DAEMON_SCRIPT = WINDOWS_DAEMON_SCRIPT.replace("%args%", sargs)
   call = ["powershell", WINDOWS_DAEMON_SCRIPT]
-  print call
   subprocess.Popen(call, creationflags=0x08000000)
 def runWindows(command, args):
   if args:
     call = ["powershell", "Start-Process \"" + command + "\" -ArgumentList @(\""+"\",\"".join(args)+"\");"]
   else:
     call = ["powershell", "Start-Process \"" + command + "\";"]
-  print call
   subprocess.Popen(call, creationflags=0x08000000)
+
+  
+
 def executeApp(command, sargs, killKodi, minimize):
   if sargs == "":
     args = []
   else:
     args = sargs.split(",")
-  daemon = False
-  killed = "False"
   if killKodi:
-    daemon = True
-    killed = "True"
-  elif minimize:
-    daemon = True
-  if myOS == "Linux":
-    if daemon:
-	  runLinuxDemon(command, args)
-    else:
-      runLinux(command, args)
-  elif myOS == "Windows":
-    if daemon:
+    if myOS == "Linux":
+      runLinuxDemon(command, args)
+    elif myOS == "Windows":
       runWindowsDemon(xbmc.translatePath("special://xbmc") + "kodi", command, args)
-    else:
-      runWindows(command, args)
-  if minimize:
+    xbmc.executebuiltin("Quit")  
+  elif minimize:
     xbmc.executebuiltin("Minimize")
-  if killKodi:
-    xbmc.executebuiltin("Quit")
+    if myOS == "Linux":
+      runLinuxMinimize(command, args)
+    elif myOS == "Windows":
+      runWindowsDemon(xbmc.translatePath("special://xbmc") + "kodi", command, args)
+  else:
+    if myOS == "Linux":
+      runLinux(command, args)
+    elif myOS == "Windows":
+      runWindows(command, args)
+
+    
       
 
 

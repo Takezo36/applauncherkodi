@@ -89,6 +89,29 @@ msgctxt "#35015"
 msgid "Name eingeben"
 msgstr ""
 
+msgctxt "#35020"
+msgid "Sie müssen mindestens PowerShell 3.0 installiert haben."
+msgstr ""
+
+msgctxt "#35021"
+msgid "Bitte installieren sie es. Für mehr infos gehen sie zu"
+msgstr ""
+
+msgctxt "#35022"
+msgid " (Das sollte jetzt in ihrer Zwischenablage sein)"
+msgstr ""
+
+msgctxt "#35023"
+msgid "Linux viele Icons als SVGs. Leider unterstützt Kodi kein SVG."
+msgstr ""
+
+msgctxt "#35024"
+msgid "Daher benötigen sie einen SVG zu PNG Umwandler. Das Standardprogramm ist rsvg-convert welches in Ubuntu im librsvg2-bin Packet ist."
+msgstr ""
+
+msgctxt "#35025"
+msgid "Entweder installieren sie das oder konfigurieren eine alternative in den Einstellungen. (diese Nachricht taucht nicht wieder auf)"
+msgstr ""
 #settings
 
 msgctxt "#36000"

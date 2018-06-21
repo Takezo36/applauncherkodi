@@ -18,10 +18,10 @@ APPREADER_SCRIPT_LOCATION = xbmc.translatePath("special://home")+ "addons" + os.
 with open(APPREADER_SCRIPT_LOCATION, 'r') as myfile:
   APPREADER_SCRIPT=myfile.read()
 APPREADER_SCRIPT = APPREADER_SCRIPT.replace("$args[0]", "\""+ADDON_USER_DATA_FOLDER + "\"")
-FAILED_LINE1 = "You need to have PowerShell installed at least version 3.0"
-FAILED_LINE2 = "Please download and install it. For more info go to"
+FAILED_LINE1 = ADDON.getLocalizedString(35020)
+FAILED_LINE2 = ADDON.getLocalizedString(35021)
 FAIL_URL = "https://docs.microsoft.com/de-de/powershell/scripting/setup/installing-windows-powershell?view=powershell-6" 
-FAILED_LINE3 = FAIL_URL + " (this should be in your clipboard now)"
+FAILED_LINE3 = FAIL_URL + ADDON.getLocalizedString(35022)
 if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
 

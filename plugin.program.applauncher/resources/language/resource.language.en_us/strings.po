@@ -1,7 +1,7 @@
 # Kodi Media Center language file
-# Addon Name: YouTube
-# Addon id: plugin.video.youtube
-# Addon Provider: bromix
+# Addon Name: AppLauncher
+# Addon id: plugin.program.applauncher
+# Addon Provider: Takezo36
 
 "Project-Id-Version: XBMC-Addons\n"
 "Report-Msgid-Bugs-To: benni36@gmx.de\n"
@@ -103,6 +103,30 @@ msgstr ""
 
 msgctxt "#35019"
 msgid "In the path for the new folder is a part which is an app name. This is invalid"
+msgstr ""
+
+msgctxt "#35020"
+msgid "You need to have PowerShell installed at least version 3.0"
+msgstr ""
+
+msgctxt "#35021"
+msgid "Please download and install it. For more info go to"
+msgstr ""
+
+msgctxt "#35022"
+msgid " (this should be in your clipboard now)"
+msgstr ""
+
+msgctxt "#35023"
+msgid "Linux has a lot of icons as SVGs. Unfortunately Kodi doesn't support SVG."
+msgstr ""
+
+msgctxt "#35024"
+msgid "Hence you'll need a SVG to PNG converter to see more icons. The default is rsvg-convert which in Ubuntu is in the librsvg2-bin package."
+msgstr ""
+
+msgctxt "#35025"
+msgid "Either install this or install an alternative and configure the execution string in the settings. (this message will not appear again)"
 msgstr ""
 
 #settings
