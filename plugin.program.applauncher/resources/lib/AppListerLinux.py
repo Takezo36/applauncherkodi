@@ -12,9 +12,6 @@ import xbmcgui
 import hashlib
 from distutils.util import strtobool
 
-FAILED_LINE1 = ADDON.getLocalizedString(35023)
-FAILED_LINE2 = ADDON.getLocalizedString(35024)
-FAILED_LINE3 = ADDON.getLocalizedString(35025)
 
 
 ADDON = xbmcaddon.Addon()
@@ -23,6 +20,9 @@ ADDON_VERSION = ADDON.getAddonInfo('version')
 ADDON_USER_DATA_FOLDER = xbmc.translatePath("special://profile/addon_data/"+ADDON_ID)
 IGNORE_CATEGORIES = ["GNOME", "GTK", "Application", "Core"]
 MAX_FOLDER_DEPTH = 1
+FAILED_LINE1 = ADDON.getLocalizedString(35023)
+FAILED_LINE2 = ADDON.getLocalizedString(35024)
+FAILED_LINE3 = ADDON.getLocalizedString(35025)
 
 def showSVGMissingDialog():
   xbmcgui.Dialog().ok('Error', FAILED_LINE1,FAILED_LINE2,FAILED_LINE3)
