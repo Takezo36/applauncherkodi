@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.program.applauncher" name="App Launcher" version="0.5.1" provider-name="Benjamin Hebgen (Takezo36)">
+<addon id="plugin.program.applauncher" name="App Launcher" version="0.7.9" provider-name="Benjamin Hebgen (Takezo36)">
     <requires>
         <import addon="xbmc.python" version="2.24.0" />
         <import addon="script.module.simplejson" version="3.3.0"/>

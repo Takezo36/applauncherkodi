@@ -4,7 +4,8 @@
         <setting label="36001" type="bool" id="minimize" default="false"/>
         <setting label="36002" type="bool" id="killkodi" default="false"/>
         <setting label="36003" type="bool" id="dontshowstart" default="false"/>
-		<setting label="36008" type="bool" id="flattenapps" default="false"/>
+	<setting label="36008" type="bool" id="flattenapps" default="false"/>
+	<setting label="36009" type="number" id="cachetime" default="8760"/>
         <setting label="36006" type="text" id="dirsep" default="$%$"/>
     </category>
     <category label="Linux">

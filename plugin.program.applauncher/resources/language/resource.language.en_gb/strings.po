@@ -106,7 +106,7 @@ msgid "In the path for the new folder is a part which is an app name. This is in
 msgstr ""
 
 msgctxt "#35020"
-msgid "You need to have PowerShell installed at least version 3.0"
+msgid "You need to have PowerShell installed at least version 2.0"
 msgstr ""
 
 msgctxt "#35021"
@@ -165,4 +165,8 @@ msgstr ""
 
 msgctxt "#36008"
 msgid "Ignore folder structure and show all OS apps at once"
+msgstr ""
+
+msgctxt "#36009"
+msgid "Cache timeout"
 msgstr ""

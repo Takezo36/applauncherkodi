@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2018 - Benjamin Hebgen
 # This program is Free Software see LICENSE file for details
@@ -24,6 +24,8 @@ FAILED_LINE1 = ADDON.getLocalizedString(35023)
 FAILED_LINE2 = ADDON.getLocalizedString(35024)
 FAILED_LINE3 = ADDON.getLocalizedString(35025)
 
+def getLastChange():
+  return os.path.getmtime("/usr/share/applications/")
 def showSVGMissingDialog():
   xbmcgui.Dialog().ok('Error', FAILED_LINE1,FAILED_LINE2,FAILED_LINE3)
 

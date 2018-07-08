@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2015 - Benjamin Hebgen
 # This program is Free Software see LICENSE file for details

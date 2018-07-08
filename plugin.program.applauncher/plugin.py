@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2018 - Benjamin Hebgen <mail>
 # This program is Free Software see LICENSE file for details
@@ -52,6 +52,7 @@ IS_CUSTOM = "iscustom"
 handle = -1
 PLUGIN_ACTION = "Container.Update(plugin://plugin.program.applauncher?"
 DIR_SEP = ADDON.getSetting("dirsep")
+CACHE_TIME = int(ADDON.getSetting("cachetime"))
 CREATE_CUSTOM_ENTRY_STRING = ADDON.getLocalizedString(35000)
 CREATE_CUSTOM_FOLDER_STRING = ADDON.getLocalizedString(35001)
 CREATE_CUSTOM_VARIANT_STRING = ADDON.getLocalizedString(35002)
@@ -128,6 +129,7 @@ def createEntries(folderToShow = "", folderIsInCustoms = True):
     if not strtobool(ADDON.getSetting("dontshowstart")):
       if strtobool(ADDON.getSetting("flattenapps")):
         folderToShow = "all apps"
+        isRoot = False
       addStartEntries(folderToShow, isRoot)
   if folderIsInCustoms or isRoot:
     addAddCustomEntryButton(handle, folderToShow)
@@ -222,7 +224,9 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
     icon = entry[Constants.ICON]
   else:
     icon = ""
-
+  #this is a stupid bugfix for a strange serialization bug in powershell
+  if type(icon) is list:
+    icon = icon[1]
   if arts and Constants.BACKGROUND in arts.keys():
     background = arts[Constants.BACKGROUND]
     hasCustomBackground = True
@@ -230,14 +234,17 @@ def createAppEntry(entry, addToStartPath, isCustom = False):
     background = entry[Constants.BACKGROUND]
   else:
     background = icon
-  li.setArt({'icon' : icon,
-             'thumb':icon,
-             'poster':icon,
-             'banner':icon,
-             'fanart':background,
-             'clearart':icon,
-             'clearlogo':icon,
-             'landscape':icon})
+  try:
+    li.setArt({'icon' : icon,
+               'thumb':icon,
+               'poster':icon,
+               'banner':icon,
+               'fanart':background,
+               'clearart':icon,
+               'clearlogo':icon,
+               'landscape':icon})
+  except:
+    xbmc.log("Failed to load icon " + str(icon), xbmc.LOGDEBUG)
   contextMenu = []
   if Constants.SIDECALLS in entry.keys():
     addSideCallEntries(contextMenu, entry[Constants.SIDECALLS])
@@ -260,11 +267,15 @@ def addCustomEntry(exe="/", args="", icon="/", background="/", name="", path="")
   fileName = dialog.browseSingle(1, SELECT_EXECUTION_FILE_STRING, 'files', '', False, False, exe)
   if fileName == "":
     return
-  params = dialog.input(ADD_PARAMETERS_STRING, args)
+  params = dialog.input(ADD_PARAMETERS_STRING, " ".join(args)).split(" ")
+  if type(icon) is list:
+    icon = icon[1]
   icon = dialog.browseSingle(1, ICON_TITLE_STRING, 'files', '', False, False, icon)
   if icon == "":
     return
-  background = dialog.browseSingle(1, BACKGROUND_TITLE_STRING, 'files', '', False, False, icon)
+  if type(background) is list:
+    background = background[1]
+  background = dialog.browseSingle(1, BACKGROUND_TITLE_STRING, 'files', '', False, False, background)
   if background == "":
     return
   name = dialog.input(SET_NAME_STRING, name)
@@ -346,7 +357,9 @@ def addCustomVariant(path):
   entry = getAppList()
   for key in path.split(DIR_SEP):
     entry = entry[key]
-  addCustomEntry(entry[Constants.EXEC], entry[Constants.ARGS], entry[Constants.ICON], entry[Constants.BACKGROUND], entry[Constants.NAME], path)
+  if not Constants.BACKGROUND in entry.keys():
+    entry[Constants.BACKGROUND] = entry[Constants.ICON]
+  addCustomEntry(entry[Constants.EXEC], entry[Constants.ARGS], entry[Constants.ICON], entry[Constants.BACKGROUND], entry[Constants.NAME], "")
 
 def executeApp(command, args):
   killKodi = strtobool(ADDON.getSetting("killkodi"))
@@ -461,7 +474,7 @@ if (__name__ == "__main__"):
   params = parseArgs()
   addSortingMethods()
   xbmc.executebuiltin("Container.SetViewMode(Icons)")
-  cache = StorageServer.StorageServer(ADDON_ID, 24)
+  cache = StorageServer.StorageServer(ADDON_ID+"v2", CACHE_TIME)
   if not os.path.exists(ADDON_USER_DATA_FOLDER):
     os.makedirs(ADDON_USER_DATA_FOLDER)
   if ACTION in params:
