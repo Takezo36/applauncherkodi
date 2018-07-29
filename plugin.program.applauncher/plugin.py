@@ -50,10 +50,14 @@ CUSTOM_ARTS = "arts"
 DIR = "dir"
 IS_CUSTOM = "iscustom"
 handle = -1
+skindir = xbmc.getSkinDir()
 PLUGIN_ACTION = "Container.Update(plugin://plugin.program.applauncher?"
 DIR_SEP = ADDON.getSetting("dirsep")
 CACHE_TIME = int(ADDON.getSetting("cachetime"))
-CREATE_CUSTOM_ENTRY_STRING = ADDON.getLocalizedString(35000)
+if(skindir.upper() == "SKIN.XONE"):
+  CREATE_CUSTOM_ENTRY_STRING = ADDON.getLocalizedString(35000)
+else:
+  CREATE_CUSTOM_ENTRY_STRING = ADDON.getLocalizedString(35000)
 CREATE_CUSTOM_FOLDER_STRING = ADDON.getLocalizedString(35001)
 CREATE_CUSTOM_VARIANT_STRING = ADDON.getLocalizedString(35002)
 ADD_START_ENTRY_TO_CUSTOMS_STRING = ADDON.getLocalizedString(35003)
@@ -133,6 +137,7 @@ def createEntries(folderToShow = "", folderIsInCustoms = True):
       addStartEntries(folderToShow, isRoot)
   if folderIsInCustoms or isRoot:
     addAddCustomEntryButton(handle, folderToShow)
+  if not strtobool(ADDON.getSetting("dontshowcustomfolders")):
     addAddCustomFolderButton(handle, folderToShow)
   xbmcplugin.endOfDirectory(handle, cacheToDisc=False)  
 

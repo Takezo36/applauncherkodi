@@ -153,3 +153,12 @@ msgstr ""
 msgctxt "#36009"
 msgid "Cache timeout"
 msgstr ""
+
+msgctxt "#36010"
+msgid "Custom Ordner Eintrag verstecken"
+msgstr ""
+
+msgctxt "#37000"
+msgid "Spiel hinzufügen"
+msgstr ""
+

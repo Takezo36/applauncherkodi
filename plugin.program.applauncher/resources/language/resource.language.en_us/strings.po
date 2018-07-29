@@ -170,3 +170,11 @@ msgstr ""
 msgctxt "#36009"
 msgid "Cache timeout"
 msgstr ""
+
+msgctxt "#36010"
+msgid "Hide custom folder entry"
+msgstr ""
+
+msgctxt "#37000"
+msgid "Add game"
+msgstr ""
